@@ -48,7 +48,7 @@ export function BoardSettingsModal({
 
   const nameCountTone = useMemo(() => {
     if (trimmedName.length === 0) return isDark ? 'text-rose-300' : 'text-rose-600';
-    if (trimmedName.length > 60) return isDark ? 'text-amber-300' : 'text-amber-700';
+    if (trimmedName.length > 25) return isDark ? 'text-amber-300' : 'text-amber-700';
     return isDark ? 'text-zinc-500' : 'text-zinc-500';
   }, [isDark, trimmedName.length]);
 
@@ -75,11 +75,11 @@ export function BoardSettingsModal({
           <section className="space-y-3">
             <div className="flex items-center justify-between">
               <h4 className={`text-sm font-semibold ${isDark ? 'text-zinc-200' : 'text-zinc-800'}`}>Edit board name</h4>
-              <span className={`text-xs ${nameCountTone}`}>{trimmedName.length}/80</span>
+              <span className={`text-xs ${nameCountTone}`}>{trimmedName.length}/25</span>
             </div>
             <input
               value={name}
-              onChange={(event) => setName(event.target.value.slice(0, 80))}
+              onChange={(event) => setName(event.target.value.slice(0, 25))}
               placeholder="Board name"
               className={`w-full rounded-md border px-3 py-2 outline-none focus:ring-1 ${isDark ? 'border-zinc-800 bg-zinc-900 text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-600 focus:ring-zinc-600' : 'border-zinc-300 bg-white text-zinc-900 placeholder:text-zinc-500 focus:border-zinc-400 focus:ring-zinc-400'}`}
             />

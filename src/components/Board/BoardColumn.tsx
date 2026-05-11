@@ -30,11 +30,14 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
     isDragging,
   } = useSortable({ 
     id: board.id,
-    data: { type: 'Board', board }
+    data: { type: 'Board', board, columnIndex: board.columnIndex ?? 0 }
   });
 
   const visibleCount = useStore((s) => s.data?.pages.find(p => p.id === pageId)?.visibleBookmarksPerBoard ?? 6);
   const [expanded, setExpanded] = useState(false);
+
+  // Truncate board name to 25 characters
+  const truncatedName = board.name.length > 25 ? board.name.substring(0, 25) + '...' : board.name;
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -148,12 +151,22 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
             {board.accentColor && (
               <div className={`w-2 h-2 rounded-full ${isDark ? 'shadow-[0_0_8px_rgba(255,255,255,0.3)]' : 'shadow-[0_0_8px_rgba(0,0,0,0.25)]'}`} style={{ backgroundColor: board.accentColor }} />
             )}
-            <h3 className={`font-bold text-base tracking-tight ${isDark ? 'text-zinc-100' : 'text-zinc-900'}`}>{board.name}</h3>
+            <h3 className={`font-bold text-base tracking-tight ${isDark ? 'text-zinc-100' : 'text-zinc-900'}`} title={board.name}>{truncatedName}</h3>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest ${isDark ? 'text-zinc-500 bg-white/5' : 'text-zinc-600 bg-zinc-100 border border-zinc-200'}`}>
               {board.bookmarks.length}
             </span>
+            <button 
+              type="button"
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={handleAddClick}
+              disabled={dragMode}
+              className={`p-1 rounded-md transition-colors ${dragMode ? 'opacity-50 cursor-not-allowed' : isDark ? 'text-zinc-500 hover:text-emerald-400' : 'text-zinc-500 hover:text-emerald-600 hover:bg-emerald-50'}`}
+              title="Add bookmark"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
             <button 
               type="button"
               onPointerDown={(e) => e.stopPropagation()}
@@ -196,17 +209,6 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
               Drop bookmarks here
             </div>
           )}
-        </div>
-
-        <div className="p-3 mt-auto">
-          <button
-            onClick={handleAddClick}
-            disabled={dragMode}
-            className={`w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold uppercase tracking-widest rounded-xl transition-all border border-transparent ${dragMode ? 'opacity-50 cursor-not-allowed' : isDark ? 'text-zinc-400 hover:text-zinc-100 hover:bg-white/5 hover:border-white/10' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 hover:border-zinc-200'}`}
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add Bookmark</span>
-          </button>
         </div>
       </div>
 

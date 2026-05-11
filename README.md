@@ -39,7 +39,7 @@ Key design goals:
 ## Features
 
 - Quick Save: press Ctrl/Cmd + Shift + Y on any page to save it to a `Quick Saves` board (auto-created if missing).
-- Boards & Pages: multiple boards per page, multiple pages; boards can be dragged into any of the four canvas columns, including empty columns.
+- Boards & Pages: multiple boards per page, multiple pages; boards can be dragged into any of the four canvas columns, including empty columns. When dragging a board over another board in a different column, the board will be inserted at that position (before or after the target board based on cursor proximity).
 - Centered modals and accessible inputs: all modals are portaled to the app root and theme-aware.
 - Background options: set a background color, external image URL, or upload an image (stored as data URL).
 - Toast notifications: replace alerts/prompts with in-app toasts (auto-dismissable).
@@ -69,7 +69,7 @@ Note: Browser-level keyboard handling may vary across platforms and OS; when run
 
 - Quick Save workflow: quick-capture many pages during browsing sessions — the Quick Saves board collects these. Periodically move or curate entries into other boards.
 - Summoning bookmarks: use the Summon action on a board to open all bookmarks. Use cautiously — popup blockers or tab explosions may occur.
-- Board organization workflow: drag boards across the canvas to regroup them by column. Empty columns are valid drop targets, so you can build a layout by eye.
+- Board organization workflow: drag boards across the canvas to regroup them by column. Empty columns are valid drop targets, so you can build a layout by eye. To insert a board between two existing boards in another column, drag the board and drop it over the target board at the position where you want it inserted.
 
 ## Storage, Import & Export
 

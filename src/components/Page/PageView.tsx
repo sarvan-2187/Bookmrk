@@ -123,11 +123,35 @@ export function PageView() {
 
     // Moving a Board
     if (activeType === 'Board' && overType === 'Board') {
-      const targetColumn = typeof over.data.current?.columnIndex === 'number'
-        ? over.data.current.columnIndex
-        : (page.boards.find((board) => board.id === over.id)?.columnIndex ?? 0);
+      const activeBoard = page.boards.find((board) => board.id === active.id);
+      const overBoard = page.boards.find((board) => board.id === over.id);
+      if (!activeBoard || !overBoard) return;
 
-      moveBoardToColumn(page.id, active.id as string, targetColumn);
+      const activeColumnIndex = activeBoard.columnIndex ?? 0;
+      const targetColumn = overBoard.columnIndex ?? 0;
+
+      // Cross-column move: compute insertion index
+      if (activeColumnIndex !== targetColumn) {
+        // Get boards in target column sorted by order
+        const targetColumnBoards = page.boards
+          .filter(b => (b.columnIndex ?? 0) === targetColumn)
+          .sort((a, b) => a.order - b.order);
+
+        // Use the sortable index if available, otherwise append
+        let insertIndex = targetColumnBoards.length;
+        if (typeof over.data.current?.sortable?.index === 'number') {
+          insertIndex = over.data.current.sortable.index;
+        }
+
+        moveBoardToColumn(page.id, active.id as string, targetColumn, insertIndex);
+        return;
+      }
+
+      // Same column: use sortable index for reordering
+      if (typeof over.data.current?.sortable?.index === 'number') {
+        const newIndex = over.data.current.sortable.index;
+        moveBoardToColumn(page.id, active.id as string, targetColumn, newIndex);
+      }
       return;
     }
 
@@ -222,6 +246,7 @@ export function PageView() {
           title="New Board"
           label="Board name"
           placeholder="My Board"
+          maxLength={25}
           onClose={() => setIsAddBoardOpen(false)}
           onSave={onSaveBoard}
         />

@@ -19,6 +19,9 @@ export function BookmarkTile({ bookmark, boardId, pageId, isOverlay }: BookmarkT
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   
+  // Truncate bookmark title to 15 chars, if exceeded show 12 chars + "..."
+  const truncatedTitle = bookmark.title.length > 15 ? bookmark.title.substring(0, 12) + '...' : bookmark.title;
+  
   const {
     attributes,
     listeners,
@@ -84,7 +87,7 @@ export function BookmarkTile({ bookmark, boardId, pageId, isOverlay }: BookmarkT
       </div>
       
       <div className="flex-1 min-w-0 pr-8">
-        <h4 className={`text-[13px] font-medium truncate transition-colors ${isDark ? 'text-zinc-200 group-hover:text-white' : 'text-zinc-800 group-hover:text-zinc-950'}`}>{bookmark.title}</h4>
+        <h4 className={`text-[13px] font-medium truncate transition-colors ${isDark ? 'text-zinc-200 group-hover:text-white' : 'text-zinc-800 group-hover:text-zinc-950'}`} title={bookmark.title}>{truncatedTitle}</h4>
         {!!(bookmark.description || bookmark.note) && (
           <p className={`text-[10px] truncate mt-0.5 font-medium tracking-wide transition-colors ${isDark ? 'text-zinc-500 group-hover:text-zinc-400' : 'text-zinc-500 group-hover:text-zinc-700'}`}>
             {bookmark.description || bookmark.note}

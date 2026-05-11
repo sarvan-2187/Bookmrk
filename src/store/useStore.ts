@@ -36,7 +36,7 @@ interface AppState {
   addBoardAt: (pageId: string, name: string, columnIndex: number) => void;
   updateBoard: (pageId: string, boardId: string, name: string, accentColor?: string) => void;
   deleteBoard: (pageId: string, boardId: string) => void;
-  moveBoardToColumn: (pageId: string, boardId: string, columnIndex: number) => void;
+  moveBoardToColumn: (pageId: string, boardId: string, columnIndex: number, insertIndex?: number) => void;
 
   addBookmark: (pageId: string, boardId: string, url: string, title: string, description?: string) => void;
   updateBookmark: (pageId: string, boardId: string, bookmarkId: string, title: string, url: string, description?: string) => void;
@@ -389,7 +389,7 @@ export const useStore = create<AppState>((set, get) => ({
     };
 
     // If the removed board was the imported bookmarks board, clear the chrome import flag
-    if (boardToDelete && boardToDelete.name === 'Imported Bookmarks') {
+    if (boardToDelete && boardToDelete.name === 'Imported') {
       newData.chromeBookmarksImported = false;
     }
 
@@ -397,7 +397,7 @@ export const useStore = create<AppState>((set, get) => ({
     StorageAdapter.save(newData);
   },
 
-  moveBoardToColumn: (pageId, boardId, columnIndex) => {
+  moveBoardToColumn: (pageId, boardId, columnIndex, insertIndex) => {
     const { data } = get();
     if (!data) return;
 
@@ -421,8 +421,16 @@ export const useStore = create<AppState>((set, get) => ({
     if (!movedBoard) return;
 
     const targetColumn = Math.max(0, Math.min(BOARD_COLUMN_COUNT - 1, columnIndex));
-    movedBoard = { ...movedBoard, columnIndex: targetColumn, order: columns[targetColumn].length };
-    columns[targetColumn].push(movedBoard);
+    
+    // Determine insertion position
+    let finalInsertIndex = columns[targetColumn].length; // Default: append to end
+    if (typeof insertIndex === 'number' && insertIndex >= 0) {
+      // Clamp insertIndex to valid range [0, columnLength]
+      finalInsertIndex = Math.min(insertIndex, columns[targetColumn].length);
+    }
+    
+    movedBoard = { ...movedBoard, columnIndex: targetColumn, order: finalInsertIndex };
+    columns[targetColumn].splice(finalInsertIndex, 0, movedBoard);
 
     page.boards = rebuildBoardsFromColumns(columns.map((columnBoards) => columnBoards.slice().sort((left, right) => left.order - right.order)));
 
@@ -618,11 +626,11 @@ export const useStore = create<AppState>((set, get) => ({
       summary.pagesCreated += 1;
     }
 
-    let importedBoard = targetPage.boards.find((board) => board.name === 'Imported Bookmarks');
+    let importedBoard = targetPage.boards.find((board) => board.name === 'Imported');
     if (!importedBoard) {
       importedBoard = {
         id: generateId(),
-        name: 'Imported Bookmarks',
+        name: 'Imported',
         order: targetPage.boards.length,
         columnIndex: 0,
         bookmarks: [],

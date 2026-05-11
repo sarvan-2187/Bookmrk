@@ -6,11 +6,12 @@ type InputModalProps = {
   title?: string;
   label?: string;
   placeholder?: string;
+  maxLength?: number;
   onClose: () => void;
   onSave: (value: string) => void;
 };
 
-export function InputModal({ isOpen, title = 'Input', label = 'Name', placeholder = '', onClose, onSave }: InputModalProps) {
+export function InputModal({ isOpen, title = 'Input', label = 'Name', placeholder = '', maxLength, onClose, onSave }: InputModalProps) {
   const [value, setValue] = useState('');
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
@@ -50,11 +51,14 @@ export function InputModal({ isOpen, title = 'Input', label = 'Name', placeholde
 
         <form onSubmit={handleSubmit} className="space-y-4 px-5 py-5">
           <div>
-            <label className={`mb-1.5 block text-sm font-medium ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>{label}</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className={`text-sm font-medium ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>{label}</label>
+              {maxLength && <span className={`text-xs ${value.length > maxLength * 0.8 ? (isDark ? 'text-amber-400' : 'text-amber-600') : (isDark ? 'text-zinc-500' : 'text-zinc-500')}`}>{value.length}/{maxLength}</span>}
+            </div>
             <input
               autoFocus
               value={value}
-              onChange={(e) => setValue(e.target.value)}
+              onChange={(e) => setValue(maxLength ? e.target.value.slice(0, maxLength) : e.target.value)}
               placeholder={placeholder}
               className={`w-full rounded-md border px-3 py-2 outline-none focus:ring-1 ${isDark ? 'border-zinc-800 bg-zinc-900 text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-600 focus:ring-zinc-600' : 'border-zinc-300 bg-white text-zinc-900 placeholder:text-zinc-500 focus:border-zinc-400 focus:ring-zinc-400'}`}
             />
