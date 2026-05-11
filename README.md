@@ -1,6 +1,6 @@
 # Bookmrk
 
-Bookmrk is a lightweight, open-source bookmark manager built with React, TypeScript, Vite and Tailwind CSS. It is designed as a modern local-first bookmark manager with quick-save keyboard shortcuts, multi-board organization, cloud/Chrome import fallback, flexible backgrounds, and a mobile-friendly responsive grid.
+Bookmrk is a lightweight, open-source bookmark manager built with React, TypeScript, Vite and Tailwind CSS. It is designed as a modern local-first bookmark manager with quick-save keyboard shortcuts, multi-board organization, a canvas-style 4-column board layout, Chrome import fallback, flexible backgrounds, and a mobile-friendly responsive UI.
 
 This README is intended to be a comprehensive reference for users and contributors: installation, usage, architecture, data model, storage & migration, development and contribution guidelines, troubleshooting, and FAQs.
 
@@ -31,6 +31,7 @@ Bookmrk helps you capture and organize web pages into Boards and Pages. It focus
 Key design goals:
 - Fast capture with minimal friction (Quick Save keyboard binding)
 - Organize bookmarks into Boards and Pages (like folders + boards)
+- Organize boards in a canvas-style 4-column layout, including empty columns as valid drop targets
 - Local-first persistence with optional Chrome bookmarks import
 - Configurable background (HEX, image URL, upload)
 - Accessible, centralized modals rendered via portals for consistent UX
@@ -38,11 +39,12 @@ Key design goals:
 ## Features
 
 - Quick Save: press Ctrl/Cmd + Shift + Y on any page to save it to a `Quick Saves` board (auto-created if missing).
-- Boards & Pages: multiple boards per page, multiple pages; responsive grid layout (up to 4 columns on wide screens).
+- Boards & Pages: multiple boards per page, multiple pages; boards can be dragged into any of the four canvas columns, including empty columns.
 - Centered modals and accessible inputs: all modals are portaled to the app root and theme-aware.
 - Background options: set a background color, external image URL, or upload an image (stored as data URL).
 - Toast notifications: replace alerts/prompts with in-app toasts (auto-dismissable).
-- Board actions: edit name, delete (with confirmation), summon (open all bookmarks), add bookmark.
+- Board actions: edit name, delete (with confirmation), summon (opens bookmarks without a result toast), add bookmark.
+- Bookmark cards: click the card itself to open the URL, with settings and delete actions available from the card menu.
 - Page actions: rename and delete (with safe-guards preventing deleting the last page).
 - Chrome integration: optional import of Chrome bookmarks when running as an extension; a flag prevents repeated imports.
 - Export/Import JSON: export user data (background stripped by default for safe portability), import JSON to restore data.
@@ -52,7 +54,7 @@ Key design goals:
 Prerequisites: a modern browser or the local app built from source.
 
 1. Open the app (development: `npm run dev` - see Development Setup).
-2. Create Pages and Boards via the `+` controls.
+2. Create Pages and Boards via the `+` controls. Each column acts like a canvas lane, and the Add Board control appears on hover inside the lane.
 3. To quickly save the current page in the browser, press `Ctrl/Cmd + Shift + Y` — Bookmrk will create or use the `Quick Saves` board and save the page.
 4. Use Board settings (⋯ menu) to rename, delete, or summon bookmarks.
 
@@ -66,7 +68,8 @@ Note: Browser-level keyboard handling may vary across platforms and OS; when run
 ## Usage & Workflows
 
 - Quick Save workflow: quick-capture many pages during browsing sessions — the Quick Saves board collects these. Periodically move or curate entries into other boards.
-- Summoning bookmarks: use the Summon action on a board to open all bookmarks (use cautiously — popup blockers or tab explosions may occur). If you have many bookmarks, consider the Summon first-N enhancement so you can open only the first batch at a time.
+- Summoning bookmarks: use the Summon action on a board to open all bookmarks. Use cautiously — popup blockers or tab explosions may occur.
+- Board organization workflow: drag boards across the canvas to regroup them by column. Empty columns are valid drop targets, so you can build a layout by eye.
 
 ## Storage, Import & Export
 
@@ -85,7 +88,7 @@ Persistence is provided by `src/storage/local.ts`. Bookmrk uses the browser exte
 Core TypeScript types are defined in `src/shared/types.ts`. The important shapes:
 
 - `Bookmark` — { id, url, title, notes?, createdAt }
-- `Board` — { id, name, bookmarks: Bookmark[] }
+- `Board` — { id, name, order, columnIndex?, bookmarks: Bookmark[] }
 - `Page` — { id, name, boards: Board[] }
 - `BookmrkData` — { pages: Page[], meta: { createdAt }, chromeBookmarksImported?: boolean, background?: Background | null }
 
@@ -111,7 +114,7 @@ Top-level structure (important files/directories):
   - `Shared/InputModal.tsx` — reusable input modal.
   - `Bookmark/QuickSaveModal.tsx` — Quick Save keyboard handler and UX.
   - `Board/BoardColumn.tsx` — board UI and BoardSettingsModal.
-  - `Page/PageView.tsx` — pages, responsive grid and DnD context.
+  - `Page/PageView.tsx` — canvas-style 4-column board lanes, DnD context, and add-board placement.
 - `src/store/` — global state & helpers.
 
 DnD is implemented with `@dnd-kit/core` and `@dnd-kit/sortable`. Portals use `createPortal` from `react-dom` to ensure modals render at the document root and center properly.
@@ -249,7 +252,12 @@ A: Bookmrk intentionally omits background data from exported JSON to keep export
 <br/>
 Q: Summon opened too many tabs.
 <br/>
-A: Summon opens all bookmarks in a board. Use with caution with large boards
+A: Summon opens all bookmarks in a board. Use with caution with large boards.
+<br/>
+<br/>
+Q: Where did the open-link icon go on bookmark cards?
+<br/>
+A: The bookmark card itself now opens the URL when clicked, so the separate open-link button was removed.
 <br/>
 <br/>
 

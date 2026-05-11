@@ -2,7 +2,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Bookmark } from '../../shared/types';
 import { cn } from '../../shared/utils';
-import { ExternalLink, MoreHorizontal, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useStore } from '../../store/useStore';
 import { BookmarkSettingsModal } from './BookmarkSettingsModal';
@@ -103,17 +103,6 @@ export function BookmarkTile({ bookmark, boardId, pageId, isOverlay }: BookmarkT
           title="Bookmark settings"
         >
           <MoreHorizontal className="w-3.5 h-3.5" />
-        </button>
-        <button
-          onPointerDown={e => e.stopPropagation()}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (!dragMode) handleOpen();
-          }}
-          className={`p-1.5 focus:outline-none rounded-lg transition-all ${isDark ? 'text-zinc-500 hover:text-white hover:bg-white/10' : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100'}`}
-          title="Open link"
-        >
-          <ExternalLink className="w-3.5 h-3.5" />
         </button>
         <button
           onPointerDown={e => e.stopPropagation()}

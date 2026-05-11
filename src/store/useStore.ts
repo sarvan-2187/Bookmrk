@@ -33,10 +33,10 @@ interface AppState {
   deletePage: (id: string) => void;
 
   addBoard: (pageId: string, name: string) => void;
-  addBoardAt: (pageId: string, name: string, index: number) => void;
+  addBoardAt: (pageId: string, name: string, columnIndex: number) => void;
   updateBoard: (pageId: string, boardId: string, name: string, accentColor?: string) => void;
   deleteBoard: (pageId: string, boardId: string) => void;
-  moveBoard: (pageId: string, oldIndex: number, newIndex: number) => void;
+  moveBoardToColumn: (pageId: string, boardId: string, columnIndex: number) => void;
 
   addBookmark: (pageId: string, boardId: string, url: string, title: string, description?: string) => void;
   updateBookmark: (pageId: string, boardId: string, bookmarkId: string, title: string, url: string, description?: string) => void;
@@ -71,12 +71,14 @@ const DEFAULT_DATA: BookmrkData = {
           id: generateId(),
           name: 'To Read',
           order: 0,
+          columnIndex: 0,
           bookmarks: []
         },
         {
           id: generateId(),
           name: 'Reference',
           order: 1,
+          columnIndex: 1,
           bookmarks: []
         }
       ],
@@ -116,6 +118,45 @@ function normalizeChromeUrl(url: string): string {
   }
 }
 
+const BOARD_COLUMN_COUNT = 4;
+
+function rebuildBoardsFromColumns(columns: Board[][]): Board[] {
+  return columns.flatMap((columnBoards, columnIndex) =>
+    columnBoards.map((board, order) => ({
+      ...board,
+      columnIndex,
+      order,
+    }))
+  );
+}
+
+function normalizeBoardColumns(boards: Board[]): Board[] {
+  const columns = Array.from({ length: BOARD_COLUMN_COUNT }, () => [] as Board[]);
+  const hasColumnIndices = boards.some((board) => typeof board.columnIndex === 'number');
+
+  if (!hasColumnIndices) {
+    boards.forEach((board, index) => {
+      const columnIndex = index % BOARD_COLUMN_COUNT;
+      const order = Math.floor(index / BOARD_COLUMN_COUNT);
+      columns[columnIndex].push({ ...board, columnIndex, order });
+    });
+    return rebuildBoardsFromColumns(columns);
+  }
+
+  boards.forEach((board, index) => {
+    const columnIndex = Math.max(0, Math.min(BOARD_COLUMN_COUNT - 1, board.columnIndex ?? (index % BOARD_COLUMN_COUNT)));
+    columns[columnIndex].push({ ...board, columnIndex, order: board.order ?? 0 });
+  });
+
+  return rebuildBoardsFromColumns(
+    columns.map((columnBoards) =>
+      columnBoards
+        .slice()
+        .sort((left, right) => left.order - right.order)
+    )
+  );
+}
+
 let storageSyncAttached = false;
 
 export const useStore = create<AppState>((set, get) => ({
@@ -134,7 +175,15 @@ export const useStore = create<AppState>((set, get) => ({
     try {
       const data = await StorageAdapter.load();
       if (data) {
-        set({ data, isLoading: false, activePageId: data.pages[0]?.id || null });
+        const normalizedData = {
+          ...data,
+          pages: data.pages.map((page) => ({
+            ...page,
+            boards: normalizeBoardColumns(page.boards),
+          })),
+        };
+        set({ data: normalizedData, isLoading: false, activePageId: normalizedData.pages[0]?.id || null });
+        StorageAdapter.save(normalizedData);
       } else {
         await StorageAdapter.save(DEFAULT_DATA);
         set({ data: DEFAULT_DATA, isLoading: false, activePageId: DEFAULT_DATA.pages[0].id });
@@ -154,8 +203,16 @@ export const useStore = create<AppState>((set, get) => ({
                 ? currentActivePageId
                 : latestData.pages[0]?.id || null;
 
+              const normalizedLatestData = {
+                ...latestData,
+                pages: latestData.pages.map((page) => ({
+                  ...page,
+                  boards: normalizeBoardColumns(page.boards),
+                })),
+              };
+
               set({
-                data: latestData,
+                data: normalizedLatestData,
                 isLoading: false,
                 activePageId: nextActivePageId
               });
@@ -256,49 +313,33 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   addBoard: (pageId, name) => {
-    const { data } = get();
-    if (!data) return;
-
-    const page = data.pages.find(p => p.id === pageId);
-    if (!page) return;
-
-    const newBoard: Board = {
-      id: generateId(),
-      name,
-      order: page.boards.length,
-      bookmarks: []
-    };
-
-    const newData = {
-      ...data,
-      pages: data.pages.map(p =>
-        p.id === pageId ? { ...p, boards: [...p.boards, newBoard] } : p
-      )
-    };
-
-    set({ data: newData });
-    StorageAdapter.save(newData);
+    get().addBoardAt(pageId, name, 0);
   },
 
-  addBoardAt: (pageId, name, index) => {
+  addBoardAt: (pageId, name, columnIndex) => {
     const { data } = get();
     if (!data) return;
 
     const pageIndex = data.pages.findIndex(p => p.id === pageId);
     if (pageIndex === -1) return;
 
-    const page = { ...data.pages[pageIndex], boards: [...data.pages[pageIndex].boards] };
+    const page = { ...data.pages[pageIndex], boards: normalizeBoardColumns(data.pages[pageIndex].boards) };
+    const targetColumn = Math.max(0, Math.min(BOARD_COLUMN_COUNT - 1, columnIndex));
+    const columns = Array.from({ length: BOARD_COLUMN_COUNT }, () => [] as Board[]);
+    page.boards.forEach((board) => {
+      columns[Math.max(0, Math.min(BOARD_COLUMN_COUNT - 1, board.columnIndex ?? 0))].push(board);
+    });
 
     const newBoard: Board = {
       id: generateId(),
       name,
-      order: Math.max(0, Math.min(index, page.boards.length)),
+      order: columns[targetColumn].length,
+      columnIndex: targetColumn,
       bookmarks: []
     };
 
-    page.boards.splice(newBoard.order, 0, newBoard);
-    // Recompute order values
-    page.boards = page.boards.map((b, idx) => ({ ...b, order: idx }));
+    columns[targetColumn].push(newBoard);
+    page.boards = rebuildBoardsFromColumns(columns.map((columnBoards) => columnBoards.slice().sort((left, right) => left.order - right.order)));
 
     const newData = { ...data, pages: [...data.pages] };
     newData.pages[pageIndex] = page;
@@ -342,7 +383,7 @@ export const useStore = create<AppState>((set, get) => ({
         if (p.id !== pageId) return p;
         return {
           ...p,
-          boards: p.boards.filter(b => b.id !== boardId)
+          boards: normalizeBoardColumns(p.boards.filter(b => b.id !== boardId))
         };
       })
     };
@@ -356,7 +397,7 @@ export const useStore = create<AppState>((set, get) => ({
     StorageAdapter.save(newData);
   },
 
-  moveBoard: (pageId, oldIndex, newIndex) => {
+  moveBoardToColumn: (pageId, boardId, columnIndex) => {
     const { data } = get();
     if (!data) return;
 
@@ -364,12 +405,26 @@ export const useStore = create<AppState>((set, get) => ({
     const pageIndex = newData.pages.findIndex(p => p.id === pageId);
     if (pageIndex === -1) return;
 
-    const page = { ...newData.pages[pageIndex], boards: [...newData.pages[pageIndex].boards] };
-    const [movedBoard] = page.boards.splice(oldIndex, 1);
-    page.boards.splice(newIndex, 0, movedBoard);
+    const page = { ...newData.pages[pageIndex], boards: normalizeBoardColumns(newData.pages[pageIndex].boards) };
+    const columns = Array.from({ length: BOARD_COLUMN_COUNT }, () => [] as Board[]);
+    let movedBoard: Board | undefined;
 
-    // Update order values just to be clean
-    page.boards = page.boards.map((b, idx) => ({ ...b, order: idx }));
+    page.boards.forEach((board) => {
+      const targetColumn = Math.max(0, Math.min(BOARD_COLUMN_COUNT - 1, board.columnIndex ?? 0));
+      if (board.id === boardId) {
+        movedBoard = { ...board };
+        return;
+      }
+      columns[targetColumn].push({ ...board, columnIndex: targetColumn });
+    });
+
+    if (!movedBoard) return;
+
+    const targetColumn = Math.max(0, Math.min(BOARD_COLUMN_COUNT - 1, columnIndex));
+    movedBoard = { ...movedBoard, columnIndex: targetColumn, order: columns[targetColumn].length };
+    columns[targetColumn].push(movedBoard);
+
+    page.boards = rebuildBoardsFromColumns(columns.map((columnBoards) => columnBoards.slice().sort((left, right) => left.order - right.order)));
 
     newData.pages[pageIndex] = page;
     set({ data: newData });
@@ -529,6 +584,10 @@ export const useStore = create<AppState>((set, get) => ({
         ...parsedData,
         chromeBookmarksImported: parsedData.chromeBookmarksImported ?? false,
         background: parsedData.background ?? null,
+        pages: parsedData.pages.map((page) => ({
+          ...page,
+          boards: normalizeBoardColumns(page.boards),
+        })),
       };
       set({ data: normalizedData, activePageId: normalizedData.pages[0]?.id || null });
       StorageAdapter.save(normalizedData);
@@ -565,6 +624,7 @@ export const useStore = create<AppState>((set, get) => ({
         id: generateId(),
         name: 'Imported Bookmarks',
         order: targetPage.boards.length,
+        columnIndex: 0,
         bookmarks: [],
       };
       targetPage.boards.push(importedBoard);
@@ -621,6 +681,10 @@ export const useStore = create<AppState>((set, get) => ({
       : targetPage.id;
 
     currentData.chromeBookmarksImported = true;
+    currentData.pages = currentData.pages.map((page) => ({
+      ...page,
+      boards: normalizeBoardColumns(page.boards),
+    }));
 
     set({ data: currentData, activePageId: nextActivePageId });
     StorageAdapter.save(currentData);

@@ -14,6 +14,7 @@ export type Board = {
   id: string;
   name: string;
   order: number;
+  columnIndex?: number;
   accentColor?: string;
   bookmarks: Bookmark[];
 };

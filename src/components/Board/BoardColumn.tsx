@@ -131,7 +131,7 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
         ref={setNodeRef}
         style={style}
         className={cn(
-          "inline-block w-full mb-6 align-top flex flex-col rounded-2xl overflow-hidden shadow-2xl border transition-all duration-200",
+          "w-full flex flex-col rounded-2xl overflow-hidden shadow-2xl border transition-all duration-200",
           isDark
             ? "backdrop-blur-xl bg-zinc-900/40 border-white/10 hover:border-white/20"
             : "backdrop-blur-xl bg-white/95 border-zinc-200 hover:border-zinc-300 shadow-[0_10px_30px_rgba(0,0,0,0.08)]",
