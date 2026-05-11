@@ -47,7 +47,7 @@ export function AddBookmarkModal({ isOpen, boardName, onClose, onSave }: AddBook
 
   return createPortal(
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" 
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4" 
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -55,18 +55,16 @@ export function AddBookmarkModal({ isOpen, boardName, onClose, onSave }: AddBook
       <div
         className={`w-full max-w-md overflow-hidden rounded-2xl border shadow-2xl ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}
         style={{ backgroundColor: isDark ? '#000000' : '#ffffff' }}
-        onClick={(e) => e.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
       >
         <div className={`border-b px-5 py-4 ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
           <h3 className={`text-lg font-semibold ${isDark ? 'text-zinc-100' : 'text-zinc-900'}`}>Add Bookmark</h3>
           <p className={`mt-1 text-sm ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>Save a new bookmark into {boardName}</p>
         </div>
-
         <form onSubmit={handleSubmit} className="space-y-4 px-5 py-5">
           <div>
             <label className={`mb-1.5 block text-sm font-medium ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>URL</label>
             <input
-              autoFocus
               type="url"
               required
               value={url}

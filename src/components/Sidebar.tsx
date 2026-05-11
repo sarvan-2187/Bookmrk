@@ -7,7 +7,7 @@ import { isExtensionEnvironment } from '../storage/local';
 import { PageSettingsModal } from './Page/PageSettingsModal';
 
 export function Sidebar() {
-  const { data, activePageId, setActivePage, addPage, updatePage, deletePage, exportData, importData, importChromeBookmarks: importChromeBookmarksTree, addToast, setPageVisibleBookmarks } = useStore();
+  const { data, activePageId, setActivePage, addPage, updatePage, deletePage, exportData, importData, importChromeBookmarks: importChromeBookmarksTree, addToast, setPageVisibleBookmarks, dragMode } = useStore();
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   const hasImportedBookmarksBoard = Boolean(
     data?.pages.some((page) => page.boards.some((board) => board.name === 'Imported Bookmarks'))
@@ -18,6 +18,11 @@ export function Sidebar() {
   const [settingsPageId, setSettingsPageId] = useState<string | null>(null);
   const settingsPage = data?.pages.find((page) => page.id === settingsPageId) || null;
   const handleAddPage = () => setIsAddPageOpen(true);
+  const blockIfDragMode = () => {
+    if (!dragMode) return false;
+    addToast('Turn off Drag Mode to use this action', 'info');
+    return true;
+  };
 
   const onSavePage = (name: string) => {
     addPage(name);
@@ -119,8 +124,10 @@ export function Sidebar() {
           >
             <button
               onClick={() => setActivePage(page.id)}
+              disabled={dragMode}
               className={cn(
                 "flex-1 flex items-center gap-3 px-2 py-1.5 rounded-md text-sm font-medium transition-colors",
+                dragMode && 'opacity-50 cursor-not-allowed',
                 activePageId === page.id 
                   ? isDark ? "bg-zinc-800 text-zinc-100" : "bg-zinc-100 text-zinc-900 shadow-sm"
                   : isDark ? "text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200" : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
@@ -131,8 +138,9 @@ export function Sidebar() {
             </button>
             <button
               type="button"
-              onClick={() => setSettingsPageId(page.id)}
-              className={`p-1.5 rounded-md transition-colors ${isDark ? 'text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800' : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100'}`}
+              onClick={() => { if (!blockIfDragMode()) setSettingsPageId(page.id); }}
+              disabled={dragMode}
+              className={`p-1.5 rounded-md transition-colors ${dragMode ? 'opacity-50 cursor-not-allowed' : isDark ? 'text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800' : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100'}`}
               title={`Settings for ${page.name}`}
             >
               <MoreHorizontal className="w-4 h-4" />
@@ -162,8 +170,9 @@ export function Sidebar() {
 
       <div className={`px-2 py-4 border-t space-y-1 ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
         <button 
-          onClick={handleAddPage}
-          className={`w-full flex items-center gap-3 px-2 py-1.5 rounded-md text-sm font-medium ${isDark ? 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'}`}
+          onClick={() => { if (!blockIfDragMode()) handleAddPage(); }}
+          disabled={dragMode}
+          className={`w-full flex items-center gap-3 px-2 py-1.5 rounded-md text-sm font-medium ${dragMode ? 'opacity-50 cursor-not-allowed' : isDark ? 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'}`}
         >
           <Plus className="w-4 h-4" />
           <span>New Page</span>
@@ -179,31 +188,32 @@ export function Sidebar() {
         />
         
         <button 
-          onClick={handleChromeImport}
-          disabled={isChromeImportBlocked}
+          onClick={() => { if (!blockIfDragMode()) handleChromeImport(); }}
+          disabled={isChromeImportBlocked || dragMode}
           title={isChromeImportBlocked ? 'Chrome bookmarks are already imported' : 'Import bookmarks from Chrome'}
-          className={`w-full flex items-center gap-3 px-2 py-1.5 rounded-md text-sm font-medium ${isChromeImportBlocked ? 'opacity-45 cursor-not-allowed' : ''} ${isDark ? 'text-amber-500 hover:bg-zinc-800/50 hover:text-amber-400' : 'text-amber-700 hover:bg-amber-50 hover:text-amber-800'}`}
+          className={`w-full flex items-center gap-3 px-2 py-1.5 rounded-md text-sm font-medium ${(isChromeImportBlocked || dragMode) ? 'opacity-45 cursor-not-allowed' : ''} ${isDark ? 'text-amber-500 hover:bg-zinc-800/50 hover:text-amber-400' : 'text-amber-700 hover:bg-amber-50 hover:text-amber-800'}`}
         >
           <BookmarkPlus className="w-4 h-4" />
           <span>{isChromeImportBlocked ? 'Chrome Imported' : 'Import Chrome'}</span>
         </button>
 
         <button 
-          onClick={exportData}
-          className={`w-full flex items-center gap-3 px-2 py-1.5 rounded-md text-sm font-medium ${isDark ? 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'}`}
+          onClick={() => { if (!blockIfDragMode()) exportData(); }}
+          disabled={dragMode}
+          className={`w-full flex items-center gap-3 px-2 py-1.5 rounded-md text-sm font-medium ${dragMode ? 'opacity-50 cursor-not-allowed' : isDark ? 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'}`}
         >
           <Download className="w-4 h-4" />
           <span>Export JSON</span>
         </button>
 
-        <label className={`w-full flex items-center gap-3 px-2 py-1.5 rounded-md text-sm font-medium cursor-pointer ${isDark ? 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'}`}>
+        <label className={`w-full flex items-center gap-3 px-2 py-1.5 rounded-md text-sm font-medium cursor-pointer ${dragMode ? 'opacity-50 cursor-not-allowed pointer-events-none' : isDark ? 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'}`}>
           <Upload className="w-4 h-4" />
           <span>Import JSON</span>
           <input type="file" accept=".json" className="hidden" onChange={handleImport} />
         </label>
 
         <div className={`mt-3 pt-3 border-t ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
-          <button onClick={() => setBackgroundModalOpen(true)} className={`w-full flex items-center gap-3 px-2 py-1.5 rounded-md text-sm font-medium ${isDark ? 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'}`}>
+          <button onClick={() => { if (!blockIfDragMode()) setBackgroundModalOpen(true); }} disabled={dragMode} className={`w-full flex items-center gap-3 px-2 py-1.5 rounded-md text-sm font-medium ${dragMode ? 'opacity-50 cursor-not-allowed' : isDark ? 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'}`}>
             <Settings className="w-4 h-4" />
             <span>Backgrounds</span>
           </button>

@@ -33,10 +33,16 @@ export function InputModal({ isOpen, title = 'Input', label = 'Name', placeholde
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4"
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
       <div
         className={`w-full max-w-md rounded-2xl border shadow-2xl overflow-hidden ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}
         style={{ backgroundColor: isDark ? '#000000' : '#ffffff' }}
+        onClick={(event) => event.stopPropagation()}
       >
         <div className={`border-b px-5 py-4 ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
           <h3 className={`text-lg font-semibold ${isDark ? 'text-zinc-100' : 'text-zinc-900'}`}>{title}</h3>

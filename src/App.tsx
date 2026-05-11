@@ -9,7 +9,7 @@ import { SearchModal } from './components/Search/SearchModal';
 import { BackgroundModal } from './components/Background/BackgroundModal';
 
 export default function App() {
-  const { initialize, isLoading, activeSidebar, blurMode, data, toasts, removeToast, backgroundModalOpen, setBackgroundModalOpen } = useStore();
+  const { initialize, isLoading, activeSidebar, blurMode, dragMode, data, toasts, removeToast, backgroundModalOpen, setBackgroundModalOpen, addToast } = useStore();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
@@ -28,6 +28,11 @@ export default function App() {
       );
 
       if (isTypingTarget) return;
+      if (dragMode) {
+        event.preventDefault();
+        addToast('Turn off Drag Mode to use search', 'info');
+        return;
+      }
 
       event.preventDefault();
       setIsSearchOpen(true);
@@ -35,7 +40,13 @@ export default function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [dragMode, addToast]);
+
+  useEffect(() => {
+    if (!dragMode) return;
+    setIsSearchOpen(false);
+    setBackgroundModalOpen(false);
+  }, [dragMode, setBackgroundModalOpen]);
 
   if (isLoading) {
     return <div className="h-screen w-screen flex items-center justify-center bg-zinc-950 text-zinc-100 font-mono">Loading...</div>;

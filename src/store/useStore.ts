@@ -10,12 +10,14 @@ interface AppState {
   activePageId: string | null;
   blurMode: boolean;
   quickSaveOpen: boolean;
+  dragMode: boolean;
   toasts: { id: string; message: string; type?: 'info' | 'success' | 'error' }[];
   // Actions
   initialize: () => Promise<void>;
   setActivePage: (pageId: string) => void;
   toggleBlurMode: () => void;
   toggleSidebar: () => void;
+  toggleDragMode: () => void;
   openQuickSave: () => void;
   closeQuickSave: () => void;
   // Background customization
@@ -123,6 +125,7 @@ export const useStore = create<AppState>((set, get) => ({
   activePageId: null,
   blurMode: false,
   quickSaveOpen: false,
+  dragMode: false,
   toasts: [],
   // UI state
 
@@ -172,6 +175,7 @@ export const useStore = create<AppState>((set, get) => ({
 
   toggleBlurMode: () => set((state) => ({ blurMode: !state.blurMode })),
   toggleSidebar: () => set((state) => ({ activeSidebar: !state.activeSidebar })),
+  toggleDragMode: () => set((state) => ({ dragMode: !state.dragMode })),
   openQuickSave: () => set({ quickSaveOpen: true }),
   closeQuickSave: () => set({ quickSaveOpen: false }),
 

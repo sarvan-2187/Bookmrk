@@ -55,15 +55,15 @@ export function BookmarkSettingsModal({ isOpen, bookmark, pageId, boardId, onClo
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 p-4 md:items-center"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+      className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-black/60 p-4 md:items-center"
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
       }}
     >
       <div
         className={`my-auto flex max-h-[calc(100vh-2rem)] w-full max-w-lg flex-col overflow-hidden rounded-2xl border shadow-2xl ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}
         style={{ backgroundColor: isDark ? '#000000' : '#ffffff' }}
-        onClick={(e) => e.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
       >
         <div className={`px-5 py-4 border-b ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
           <h3 className={`text-lg font-semibold ${isDark ? 'text-zinc-100' : 'text-zinc-900'}`}>Bookmark Settings</h3>

@@ -27,7 +27,7 @@ import { Bookmark, Board } from '../../shared/types';
 import { InputModal } from '../Shared/InputModal';
 
 export function PageView() {
-  const { data, activePageId, moveBoard, moveBookmark, addBoard } = useStore();
+  const { data, activePageId, moveBoard, moveBookmark, addBoard, dragMode, addToast } = useStore();
   const addBoardAt = useStore((s) => s.addBoardAt);
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   const page = data?.pages.find(p => p.id === activePageId);
@@ -55,6 +55,11 @@ export function PageView() {
   }
 
   const handleDragStart = (event: DragStartEvent) => {
+    if (!dragMode) {
+      setActiveId(null);
+      setActiveData(null);
+      return;
+    }
     setActiveId(event.active.id as string);
     setActiveData(event.active.data.current);
   };
@@ -117,6 +122,10 @@ export function PageView() {
   };
 
   const handleAddBoard = () => {
+    if (dragMode) {
+      addToast('Turn off Drag Mode to add boards', 'info');
+      return;
+    }
     setIsAddBoardOpen(true);
   };
 
@@ -179,6 +188,7 @@ export function PageView() {
       onDragEnd={handleDragEnd}
     >
       <div ref={containerRef} className="p-6 relative" onMouseMove={(e) => {
+        if (!dragMode) return;
         const node = containerRef.current;
         if (!node || !page) return;
         const rect = node.getBoundingClientRect();
@@ -244,8 +254,16 @@ export function PageView() {
           >
             <div className="inline-block w-full">
               <button
-                onClick={() => { setAddingColumnIndex(hoverColumn); setIsAddBoardOpen(true); }}
-                className={`w-full border-2 border-dashed rounded-xl flex flex-col items-center justify-center gap-3 transition-all p-6 backdrop-blur-sm group ${isDark ? 'text-white/50 hover:text-white/80 hover:border-white/40 border-white/10 bg-white/5' : 'text-zinc-500 hover:text-zinc-800 hover:border-zinc-400 border-zinc-300 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.05)]'} ${isAddButtonVisible ? 'opacity-100' : 'opacity-0'}`}
+                onClick={() => {
+                  if (!dragMode) {
+                    addToast('Turn on Drag Mode to place boards precisely', 'info');
+                    return;
+                  }
+                  setAddingColumnIndex(hoverColumn);
+                  setIsAddBoardOpen(true);
+                }}
+                disabled={!dragMode}
+                className={`w-full border-2 border-dashed rounded-xl flex flex-col items-center justify-center gap-3 transition-all p-6 backdrop-blur-sm group ${!dragMode ? 'opacity-50 cursor-not-allowed' : ''} ${isDark ? 'text-white/50 hover:text-white/80 hover:border-white/40 border-white/10 bg-white/5' : 'text-zinc-500 hover:text-zinc-800 hover:border-zinc-400 border-zinc-300 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.05)]'} ${isAddButtonVisible ? 'opacity-100' : 'opacity-0'}`}
               >
                 <span className={`w-12 h-12 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform ${isDark ? 'bg-white/5' : 'bg-zinc-100 shadow-sm'}`}>
                   <Plus className="w-6 h-6" />

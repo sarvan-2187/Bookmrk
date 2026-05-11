@@ -15,7 +15,7 @@ interface BookmarkTileProps {
 }
 
 export function BookmarkTile({ bookmark, boardId, pageId, isOverlay }: BookmarkTileProps) {
-  const { deleteBookmark } = useStore();
+  const { deleteBookmark, dragMode, addToast } = useStore();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   
@@ -28,7 +28,8 @@ export function BookmarkTile({ bookmark, boardId, pageId, isOverlay }: BookmarkT
     isDragging,
   } = useSortable({
     id: bookmark.id,
-    data: { type: 'Bookmark', bookmark, boardId }
+    data: { type: 'Bookmark', bookmark, boardId },
+    disabled: !dragMode
   });
 
   const style = {
@@ -38,12 +39,20 @@ export function BookmarkTile({ bookmark, boardId, pageId, isOverlay }: BookmarkT
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (dragMode) {
+      addToast('Turn off Drag Mode to delete bookmarks', 'info');
+      return;
+    }
     deleteBookmark(pageId, boardId, bookmark.id);
   };
 
 
   const handleOpenSettings = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (dragMode) {
+      addToast('Turn off Drag Mode to edit bookmarks', 'info');
+      return;
+    }
     setIsSettingsOpen(true);
   };
 
@@ -55,15 +64,16 @@ export function BookmarkTile({ bookmark, boardId, pageId, isOverlay }: BookmarkT
     <div
       ref={setNodeRef}
       style={style}
-      onClick={handleOpen}
+      onClick={!dragMode ? handleOpen : undefined}
       className={cn(
-        "group relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 cursor-grab active:cursor-grabbing cursor-pointer",
+        "group relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 cursor-pointer",
+        dragMode ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer',
         isDark ? "hover:bg-white/5 border border-transparent hover:border-white/5" : "hover:bg-zinc-100 border border-transparent hover:border-zinc-200",
         isDragging && "opacity-30",
         isOverlay && (isDark ? "bg-zinc-900/80 backdrop-blur-md ring-1 ring-white/20 shadow-2xl rotate-2 opacity-100" : "bg-white/95 backdrop-blur-md ring-1 ring-zinc-300 shadow-2xl rotate-2 opacity-100")
       )}
       {...attributes}
-      {...listeners}
+      {...(dragMode ? listeners : {})}
     >
       <div className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden transition-colors ${isDark ? 'bg-white/5 border border-white/5 group-hover:border-white/10' : 'bg-zinc-100 border border-zinc-200 group-hover:border-zinc-300'}`}>
         {bookmark.favicon ? (
@@ -98,7 +108,7 @@ export function BookmarkTile({ bookmark, boardId, pageId, isOverlay }: BookmarkT
           onPointerDown={e => e.stopPropagation()}
           onClick={(e) => {
             e.stopPropagation();
-            handleOpen();
+            if (!dragMode) handleOpen();
           }}
           className={`p-1.5 focus:outline-none rounded-lg transition-all ${isDark ? 'text-zinc-500 hover:text-white hover:bg-white/10' : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100'}`}
           title="Open link"

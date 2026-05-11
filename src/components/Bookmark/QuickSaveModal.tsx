@@ -67,15 +67,15 @@ export function QuickSaveModal() {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) closeQuickSave();
+      className="fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4"
+      onClick={(event) => {
+        if (event.target === event.currentTarget) closeQuickSave();
       }}
     >
       <div
         className={`rounded-xl shadow-2xl w-full max-w-md overflow-hidden border ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}
         style={{ backgroundColor: isDark ? '#000000' : '#ffffff' }}
-        onClick={(e) => e.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
       >
         <div className={`px-5 py-4 border-b ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
           <h3 className={`font-medium text-lg ${isDark ? 'text-zinc-100' : 'text-zinc-900'}`}>Quick Save</h3>

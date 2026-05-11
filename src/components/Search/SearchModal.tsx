@@ -112,13 +112,15 @@ export function SearchModal({ isOpen, data, onClose }: SearchModalProps) {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 p-4"
-      onMouseDown={onClose}
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/65 p-4"
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
     >
       <div
         className={`w-full max-w-2xl overflow-hidden rounded-2xl border shadow-2xl ${isDark ? 'border-zinc-700' : 'border-zinc-200'}`}
         style={{ backgroundColor: isDark ? '#000000' : '#ffffff' }}
-        onMouseDown={(event) => event.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
       >
         <div className={`flex items-center gap-3 border-b px-5 py-4 ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
           <Search className={`h-5 w-5 ${isDark ? 'text-zinc-300' : 'text-zinc-600'}`} />

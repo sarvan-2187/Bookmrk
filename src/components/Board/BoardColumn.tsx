@@ -16,7 +16,7 @@ interface BoardColumnProps {
 }
 
 export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
-  const { addBookmark, deleteBoard, updateBoard, addToast } = useStore();
+  const { addBookmark, deleteBoard, updateBoard, addToast, dragMode } = useStore();
   const [isAddBookmarkOpen, setIsAddBookmarkOpen] = useState(false);
   const [isBoardSettingsOpen, setIsBoardSettingsOpen] = useState(false);
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -42,10 +42,18 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
   };
 
   const handleAddClick = () => {
+    if (dragMode) {
+      addToast('Turn off Drag Mode to add a bookmark', 'info');
+      return;
+    }
     setIsAddBookmarkOpen(true);
   };
 
   const handleOpenSettings = () => {
+    if (dragMode) {
+      addToast('Turn off Drag Mode to change board settings', 'info');
+      return;
+    }
     setIsBoardSettingsOpen(true);
   };
 
@@ -70,6 +78,10 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
   };
 
   const handleDeleteBoard = () => {
+    if (dragMode) {
+      addToast('Turn off Drag Mode to delete this board', 'info');
+      return;
+    }
     try {
       deleteBoard(pageId, board.id);
       addToast(`Deleted board "${board.name}"`, 'success');
@@ -80,6 +92,10 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
   };
 
   const handleSummonBoard = () => {
+    if (dragMode) {
+      addToast('Turn off Drag Mode to summon bookmarks', 'info');
+      return;
+    }
     if (board.bookmarks.length === 0) {
       addToast(`Board "${board.name}" has no bookmarks to open`, 'error');
       return;
@@ -156,7 +172,8 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
               type="button"
               onPointerDown={(e) => e.stopPropagation()}
               onClick={handleOpenSettings}
-              className={`p-1 rounded-md transition-colors ${isDark ? 'text-zinc-500 hover:text-red-400' : 'text-zinc-500 hover:text-red-600 hover:bg-rose-50'}`}
+              disabled={dragMode}
+              className={`p-1 rounded-md transition-colors ${dragMode ? 'opacity-50 cursor-not-allowed' : isDark ? 'text-zinc-500 hover:text-red-400' : 'text-zinc-500 hover:text-red-600 hover:bg-rose-50'}`}
               title="Board settings"
             >
               <MoreHorizontal className="w-4 h-4" />
@@ -198,7 +215,8 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
         <div className="p-3 mt-auto">
           <button
             onClick={handleAddClick}
-            className={`w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold uppercase tracking-widest rounded-xl transition-all border border-transparent ${isDark ? 'text-zinc-400 hover:text-zinc-100 hover:bg-white/5 hover:border-white/10' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 hover:border-zinc-200'}`}
+            disabled={dragMode}
+            className={`w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold uppercase tracking-widest rounded-xl transition-all border border-transparent ${dragMode ? 'opacity-50 cursor-not-allowed' : isDark ? 'text-zinc-400 hover:text-zinc-100 hover:bg-white/5 hover:border-white/10' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 hover:border-zinc-200'}`}
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Bookmark</span>
