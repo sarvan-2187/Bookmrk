@@ -231,6 +231,8 @@ Q: Quick Save isn't working in my browser.
 <br/>
 A: Ensure the page has focus and the app/extension is active. Browser-level keybindings can conflict; try the toolbar Quick Save button as a fallback.
 <br/>
+<br/>
+
 Q: I imported Chrome bookmarks and the button is disabled.
 <br/>
 A: That's by design — Bookmrk sets `chromeBookmarksImported` to avoid duplicate imports. If you need to re-import, you have two safe options:
@@ -238,15 +240,19 @@ A: That's by design — Bookmrk sets `chromeBookmarksImported` to avoid duplicat
 - Delete the `Imported Bookmarks` board from the UI; Bookmrk will automatically clear the import lock and re-enable the `Import Chrome` button.
 - Or (advanced) clear the `chromeBookmarksImported` flag manually in storage (not recommended unless you know what you're doing).
 <br/>
+<br/>
 
 Q: My exported JSON is missing my background image.
 <br/>
 A: Bookmrk intentionally omits background data from exported JSON to keep exports small. If you need the background included, open the storage code in `src/storage/local.ts` and adjust the export function.
 <br/>
+<br/>
 Q: Summon opened too many tabs.
 <br/>
 A: Summon opens all bookmarks in a board. Use with caution with large boards
 <br/>
+<br/>
+
 ## Privacy & Data Considerations
 
 - Bookmrk stores data locally (browser storage or extension storage). Uploaded images are persisted as data URLs and may contain sensitive metadata. Avoid uploading very large images.
