@@ -96,10 +96,7 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
       addToast('Turn off Drag Mode to summon bookmarks', 'info');
       return;
     }
-    if (board.bookmarks.length === 0) {
-      addToast(`Board "${board.name}" has no bookmarks to open`, 'error');
-      return;
-    }
+    if (board.bookmarks.length === 0) return;
 
     let opened = 0;
     let blocked = 0;
@@ -126,17 +123,6 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
       }
     }
 
-    if (opened > 0 && blocked === 0 && invalid === 0) {
-      addToast(`Summoned ${opened} bookmarks from "${board.name}"`, 'success');
-      return;
-    }
-
-    const parts: string[] = [];
-    if (opened > 0) parts.push(`${opened} opened`);
-    if (blocked > 0) parts.push(`${blocked} blocked by browser`);
-    if (invalid > 0) parts.push(`${invalid} invalid URL`);
-
-    addToast(`Summon result: ${parts.join(', ')}`, opened > 0 ? 'info' : 'error');
   };
 
   return (

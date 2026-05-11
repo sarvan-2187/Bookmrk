@@ -66,7 +66,7 @@ Note: Browser-level keyboard handling may vary across platforms and OS; when run
 ## Usage & Workflows
 
 - Quick Save workflow: quick-capture many pages during browsing sessions — the Quick Saves board collects these. Periodically move or curate entries into other boards.
-- Summoning bookmarks: use the Summon action on a board to open all bookmarks (use cautiously — popup blockers or tab explosions may occur). Consider using the Summon first-N enhancement if you have many bookmarks.
+- Summoning bookmarks: use the Summon action on a board to open all bookmarks (use cautiously — popup blockers or tab explosions may occur). If you have many bookmarks, consider the Summon first-N enhancement so you can open only the first batch at a time.
 
 ## Storage, Import & Export
 
