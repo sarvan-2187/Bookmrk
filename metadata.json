@@ -1,0 +1,6 @@
+{
+  "name": "Bookmrk",
+  "description": "An Open-Source, Local-First Visual Bookmark Manager for Chrome that replaces the new tab page.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

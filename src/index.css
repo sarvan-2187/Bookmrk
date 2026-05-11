@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Metrophobic:ital,wght@0,400;0,700&display=swap');
+@import "tailwindcss";
+
+:root {
+	--font-sans: 'Metrophobic', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+}
+
+html, body {
+	font-family: var(--font-sans);
+  background-color: #09090b;
+  overflow: hidden;
+}
+
+@media (prefers-color-scheme: light) {
+  html, body {
+    background-color: #ffffff;
+    color: #0a0a0a;
+  }
+}
+
+/* Custom Scrollbar for a cleaner look */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+@media (prefers-color-scheme: light) {
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+  }
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+@media (prefers-color-scheme: light) {
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.25);
+  }
+}

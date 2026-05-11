@@ -1,0 +1,71 @@
+import { BookmrkData } from '../shared/types';
+
+const STORAGE_KEY = 'bookmrk_data';
+
+export const isExtensionEnvironment = () => {
+  return typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local;
+};
+
+export class StorageAdapter {
+  static async load(): Promise<BookmrkData | null> {
+    if (isExtensionEnvironment()) {
+      return new Promise((resolve) => {
+        chrome.storage.local.get([STORAGE_KEY], (result) => {
+          resolve(result[STORAGE_KEY] || null);
+        });
+      });
+    } else {
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : null;
+    }
+  }
+
+  static async save(data: BookmrkData): Promise<void> {
+    if (isExtensionEnvironment()) {
+      return new Promise((resolve) => {
+        chrome.storage.local.set({ [STORAGE_KEY]: data }, () => {
+          resolve();
+        });
+      });
+    } else {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      return Promise.resolve();
+    }
+  }
+
+  static exportJSON(data: BookmrkData) {
+    // Export everything except background settings.
+    const { background, ...exportData } = data;
+    const jsonStr = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bookmrk_backup_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  static async importJSON(file: File): Promise<BookmrkData> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const content = e.target?.result as string;
+          const data = JSON.parse(content) as BookmrkData;
+          if (data && typeof data.version === 'number' && Array.isArray(data.pages)) {
+            resolve(data);
+          } else {
+            reject(new Error('Invalid Bookmrk JSON format'));
+          }
+        } catch (err) {
+          reject(err);
+        }
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsText(file);
+    });
+  }
+}
