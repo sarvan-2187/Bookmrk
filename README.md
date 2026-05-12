@@ -338,6 +338,6 @@ A: The bookmark card itself now opens the URL when clicked, so the separate open
 
 ## License & Contact
 
-This project is open source.
+This project is open source under MIT License.
 
 For questions, issues, or contributions, open an issue or pull request in the repository.
