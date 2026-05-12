@@ -106,7 +106,6 @@ export default function App() {
       {blurMode && <BlurOverlay />}
       <QuickSaveModal />
       <SearchModal isOpen={isSearchOpen} data={data} onClose={() => setIsSearchOpen(false)} />
-      <SettingsModal isOpen={settingsModalOpen} onClose={closeSettingsModal} />
     </div>
   );
 }
