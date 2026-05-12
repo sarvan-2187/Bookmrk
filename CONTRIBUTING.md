@@ -42,7 +42,6 @@ This project values:
 
 Harassment, hostility, spam, or toxic behavior will not be tolerated.
 
----
 
 # Before You Start
 
@@ -53,7 +52,6 @@ Before opening a PR:
 3. Keep pull requests focused and atomic.
 4. Ensure your change aligns with Bookmrk's local-first philosophy.
 
----
 
 # Development Setup
 
@@ -86,8 +84,6 @@ npm run build
 ```bash
 npm run preview
 ```
-
----
 
 # Project Philosophy
 
@@ -170,7 +166,6 @@ refactor/storage-layer
 
 Avoid committing directly to `main`.
 
----
 
 # Commit Guidelines
 
@@ -200,8 +195,6 @@ Common commit types:
 - `test`
 - `chore`
 
----
-
 # Pull Request Process
 
 ## Before Submitting
@@ -228,8 +221,6 @@ For visual changes:
 - include before/after screenshots
 - test both light and dark modes
 - test mobile responsiveness
-
----
 
 # UI & UX Standards
 
@@ -267,8 +258,6 @@ Avoid:
 - `prompt()`
 - blocking browser dialogs
 
----
-
 # TypeScript Standards
 
 ## Prefer Strong Typing
@@ -294,8 +283,6 @@ Shared application types belong in:
 src/shared/types.ts
 ```
 
----
-
 # State Management Guidelines
 
 Bookmrk uses Zustand.
@@ -312,8 +299,6 @@ If component state becomes complex:
 - extract hooks
 - extract utilities
 - split components
-
----
 
 # Styling Guidelines
 
@@ -347,8 +332,6 @@ Always verify:
 - readability
 - hover states
 
----
-
 # Accessibility Expectations
 
 All contributions should consider accessibility.
@@ -360,8 +343,6 @@ Minimum expectations:
 - sufficient color contrast
 - proper button labels
 - ARIA attributes where necessary
-
----
 
 # Performance Expectations
 
@@ -375,8 +356,6 @@ Be cautious with:
 - excessive localStorage writes
 - heavy drag-and-drop calculations
 
----
-
 # Testing
 
 Current testing infrastructure is lightweight, but contributors are encouraged to add:
@@ -388,8 +367,6 @@ Current testing infrastructure is lightweight, but contributors are encouraged t
 Recommended tools:
 - Vitest
 - React Testing Library
-
----
 
 # Documentation
 
@@ -405,8 +382,6 @@ then update:
 - `README.md`
 - inline documentation
 - migration notes if needed
-
----
 
 # Reporting Bugs
 
@@ -428,8 +403,6 @@ When opening an issue, include:
 - console logs
 - recordings
 
----
-
 # Suggesting Features
 
 Feature requests should explain:
@@ -439,8 +412,6 @@ Feature requests should explain:
 - potential tradeoffs
 
 Good feature requests are concrete and implementation-aware.
-
----
 
 # Good First Contributions
 
@@ -453,8 +424,6 @@ Good beginner-friendly areas:
 - bug fixes
 - empty states
 - toast improvements
-
----
 
 # Questions
 
