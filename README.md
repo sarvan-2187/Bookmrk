@@ -244,9 +244,6 @@ We welcome contributions. High-level workflow:
 2. Run the app locally and ensure functionality passes.
 3. Open a pull request describing the change, tests, and any migration steps.
 
-Developer notes:
-
-
 ## Example Screenshots & Annotated Flows
 
 ![Home — 4 column grid](docs/screenshots/home-4-up.png)
