@@ -1,6 +1,3 @@
-# CONTRIBUTING.md
-
-```md
 # Contributing to Bookmrk
 
 First off — thank you for considering contributing to Bookmrk ❤️
@@ -473,5 +470,4 @@ Constructive collaboration is always encouraged.
 ---
 
 Thank you for helping improve Bookmrk 🚀
-```
 
