@@ -258,7 +258,7 @@ Home page showing 4-column grid
 Quick Save modal open
 <br/>
 
-![Board Settings Modal](docs/screenshots/board-settings.png)
+![Board Settings Modal](docs/screenshots/board-settings-modal.png)
 <br/>
 Board Settings modal open
 <br/>
