@@ -55,12 +55,70 @@ Key design goals:
 
 ## Quick Start (User)
 
-Prerequisites: a modern browser or the local app built from source.
+### Install via GitHub Releases
 
-1. Open the app (development: `npm run dev` - see Development Setup).
-2. Create Pages and Boards via the `+` controls. Each column acts like a canvas lane, and the Add Board control appears on hover inside the lane.
-3. To quickly save the current page in the browser, press `Ctrl/Cmd + Shift + Y` — Bookmrk will create or use the `Quick Saves` board and save the page.
-4. Use Board settings (⋯ menu) to rename, delete, or summon bookmarks.
+Prerequisites:
+- Chromium-based browser (Chrome, Brave, Edge, Arc, etc.)
+- Developer Mode enabled in Extensions
+
+### Installation Steps
+
+1. Download the latest extension ZIP from the GitHub Releases page.
+
+```txt
+Repo → Releases → Download latest boomrk-extension-v1.0.0.zip
+```
+
+2. Extract the ZIP file.
+
+After extraction, the folder should contain:
+
+```txt
+manifest.json
+index.html
+assets/
+icons/
+background.js
+content_toast.js
+favicon.svg
+icons.svg
+```
+
+3. Open your browser extensions page:
+
+```txt
+chrome://extensions
+```
+
+4. Enable **Developer Mode** (top-right corner).
+
+5. Click **Load unpacked**.
+
+6. Select the extracted `boomrk-extension` folder.
+
+7. Bookmrk is now installed 🎉
+
+---
+
+### First-Time Usage
+
+1. Open the Bookmrk extension/app.
+2. Create Pages and Boards using the `+` controls.
+3. Open any website in a browser tab.
+4. Press:
+
+```txt
+Ctrl/Cmd + Shift + Y
+```
+
+5. Bookmrk will instantly save the page into the **Quick Saves** board.
+6. Use the Board settings menu `(⋯)` to rename, delete, organize, or summon bookmarks.
+
+---
+
+### Quick Save Flow
+
+![Quick Save Flow](docs/screenshots/flow-quick-save.png)
 
 ## Keyboard Shortcuts
 
@@ -191,22 +249,24 @@ Developer notes:
 
 ## Example Screenshots & Annotated Flows
 
-Placeholders for screenshots live in `docs/screenshots/`. Add images there using the suggested filenames for consistent documentation:
-
-- `home-4-up.png` — Home page showing 4-column grid (suggested size: 1600×900)
-- `quick-save-modal.png` — Quick Save modal open (suggested size: 800×600)
-- `board-settings.png` — Board Settings modal (suggested size: 800×600)
-- `background-modal.png` — Background modal showing color/url/upload options (suggested size: 800×600)
-
-Guidelines:
-- Use PNG or JPEG. Keep screenshots under 300 KB when possible.
-- For annotated flows, add an SVG or PNG named `flow-quick-save.png` and include a short caption below the image in the README section where you reference it.
-
-Example Markdown to embed a screenshot (replace with actual file when added):
-
-```markdown
 ![Home — 4 column grid](docs/screenshots/home-4-up.png)
-```
+Home page showing 4-column grid
+<br/>
+
+![Quick Save Modal](docs/screenshots/quick-save-modal.png)
+<br/>
+Quick Save modal open
+<br/>
+
+![Board Settings Modal](docs/screenshots/board-settings.png)
+<br/>
+Board Settings modal open
+<br/>
+
+![Background Modal](docs/screenshots/background-modal.png)
+<br/>
+Background modal showing url/upload options 
+<br/>
 
 ## Migration Script Example
 
@@ -239,14 +299,6 @@ When opening a PR, please include:
 - Before/after screenshots if UI is affected (place under `docs/screenshots/`).
 - Any migration steps or data shape changes and a link to the migration script if applicable.
 - Update to `README.md` or docs when features or developer flows change.
-
----
-
-Files added by this update:
-
-- `docs/screenshots/README.md` (guidance + placeholders)
-- `scripts/migrate_v1_to_v2.ts` (example migration script)
-- `.github/PULL_REQUEST_TEMPLATE.md` (PR template & checklist)
 
 
 ## Troubleshooting & FAQ
