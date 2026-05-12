@@ -1,10 +1,8 @@
 # Contributing to Bookmrk
 
-First off — thank you for considering contributing to Bookmrk ❤️
+First off - thank you for considering contributing to Bookmrk ❤️
 
 Bookmrk is built as a fast, local-first bookmark manager focused on clean UX, keyboard-driven workflows, and developer-friendly architecture. Whether you're fixing bugs, improving accessibility, refining UI interactions, or proposing major features, contributions are welcome.
-
----
 
 # Table of Contents
 
