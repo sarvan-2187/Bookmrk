@@ -36,7 +36,35 @@ export class StorageAdapter {
   static exportJSON(data: BookmrkData) {
     // Export everything except background settings.
     const { background, ...exportData } = data;
-    const jsonStr = JSON.stringify(exportData, null, 2);
+    
+    // Add settings metadata for documentation
+    const enrichedData = {
+      ...exportData,
+      _settingsMetadata: {
+        appearance: {
+          compactMode: {
+            enabled: data.settings?.compactMode ?? false,
+            label: 'Compact mode',
+            description: 'Reduce spacing to show more bookmarks',
+            details: 'Compact mode hides descriptions and reduces size to accommodate more bookmarks per board.'
+          }
+        },
+        behavior: {
+          openLinksInNewTab: {
+            enabled: data.settings?.openLinksInNewTab ?? false,
+            label: 'Open links in new tab',
+            description: 'Open bookmarks in a new browser tab'
+          },
+          showBookmarkDescriptions: {
+            enabled: data.settings?.showBookmarkDescriptions ?? true,
+            label: 'Show bookmark descriptions',
+            description: 'Display saved descriptions below bookmark titles'
+          }
+        }
+      }
+    };
+    
+    const jsonStr = JSON.stringify(enrichedData, null, 2);
     const blob = new Blob([jsonStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

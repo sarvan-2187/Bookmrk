@@ -28,6 +28,14 @@ export type Page = {
   visibleBookmarksPerBoard?: number;
 };
 
+export type Settings = {
+  // Behavior Settings
+  openLinksInNewTab?: boolean;
+  showBookmarkDescriptions?: boolean;
+  // Appearance Settings
+  compactMode?: boolean;
+};
+
 export type BookmrkData = {
   version: number;
   pages: Page[];
@@ -37,4 +45,5 @@ export type BookmrkData = {
     // for 'color' value is a color string like '#012345'; for 'image' value is a URL or data URL
     value: string;
   } | null;
+  settings?: Settings;
 };

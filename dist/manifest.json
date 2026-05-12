@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "Bookmrk",
+  "version": "0.1.0",
+  "description": "Open-Source, Local-First Visual Bookmark Manager for Chrome",
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "permissions": [
+    "storage",
+    "bookmarks",
+    "commands",
+    "contextMenus",
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://*/*",
+    "http://*/*",
+    "<all_urls>"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content_toast.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icons/favicon-16x16.png",
+    "32": "icons/favicon-32x32.png",
+    "192": "icons/android-chrome-192x192.png",
+    "512": "icons/android-chrome-512x512.png"
+  },
+  "commands": {
+    "quick-save": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y"
+      },
+      "description": "Quick Save current tab to Bookmrk"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}

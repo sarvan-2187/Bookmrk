@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useStore } from '../../store/useStore';
+import { getModalBackgroundStyle } from '../../shared/utils';
 
 export function QuickSaveModal() {
   const { data, activePageId, addBookmark, quickSaveOpen, openQuickSave, closeQuickSave } = useStore();
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const bgIsImage = data?.background?.type === 'image';
   
   const [url, setUrl] = useState('');
   const [title, setTitle] = useState('');
@@ -67,7 +69,8 @@ export function QuickSaveModal() {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+      style={bgIsImage ? { backgroundColor: 'rgba(0, 0, 0, 0.3)', backdropFilter: 'blur(10px)' } : { backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
       onClick={(event) => {
         if (event.target === event.currentTarget) closeQuickSave();
       }}

@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Save } from 'lucide-react';
 import { Bookmark } from '../../shared/types';
 import { useStore } from '../../store/useStore';
+import { getModalBackgroundStyle } from '../../shared/utils';
 
 type BookmarkSettingsModalProps = {
   isOpen: boolean;
@@ -14,8 +15,9 @@ type BookmarkSettingsModalProps = {
 };
 
 export function BookmarkSettingsModal({ isOpen, bookmark, pageId, boardId, onClose, onDelete }: BookmarkSettingsModalProps) {
-  const { updateBookmark, addToast } = useStore();
+  const { updateBookmark, addToast, data } = useStore();
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const bgIsImage = data?.background?.type === 'image';
   const [title, setTitle] = useState(bookmark.title);
   const [url, setUrl] = useState(bookmark.url);
   const [description, setDescription] = useState(bookmark.description ?? bookmark.note ?? '');
@@ -55,7 +57,8 @@ export function BookmarkSettingsModal({ isOpen, bookmark, pageId, boardId, onClo
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-black/60 p-4 md:items-center"
+      className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto p-4 md:items-center"
+      style={bgIsImage ? { backgroundColor: 'rgba(0, 0, 0, 0.3)', backdropFilter: 'blur(10px)' } : { backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}

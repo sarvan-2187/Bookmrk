@@ -1,5 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
+import { useStore } from '../../store/useStore';
+import { getModalBackgroundStyle } from '../../shared/utils';
 
 type InputModalProps = {
   isOpen: boolean;
@@ -12,8 +14,10 @@ type InputModalProps = {
 };
 
 export function InputModal({ isOpen, title = 'Input', label = 'Name', placeholder = '', maxLength, onClose, onSave }: InputModalProps) {
+  const { data } = useStore();
   const [value, setValue] = useState('');
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const bgIsImage = data?.background?.type === 'image';
 
   useEffect(() => {
     if (!isOpen) return;
@@ -35,7 +39,8 @@ export function InputModal({ isOpen, title = 'Input', label = 'Name', placeholde
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4"
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+      style={bgIsImage ? { backgroundColor: 'rgba(0, 0, 0, 0.3)', backdropFilter: 'blur(10px)' } : { backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}

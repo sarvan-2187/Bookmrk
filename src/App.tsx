@@ -7,9 +7,10 @@ import { BlurOverlay } from './components/BlurOverlay';
 import { QuickSaveModal } from './components/Bookmark/QuickSaveModal';
 import { SearchModal } from './components/Search/SearchModal';
 import { BackgroundModal } from './components/Background/BackgroundModal';
+import { SettingsModal } from './components/Settings/SettingsModal';
 
 export default function App() {
-  const { initialize, isLoading, activeSidebar, blurMode, dragMode, data, toasts, removeToast, backgroundModalOpen, setBackgroundModalOpen, addToast } = useStore();
+  const { initialize, isLoading, activeSidebar, blurMode, dragMode, data, toasts, removeToast, backgroundModalOpen, setBackgroundModalOpen, settingsModalOpen, closeSettingsModal, addToast } = useStore();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
@@ -105,6 +106,7 @@ export default function App() {
       {blurMode && <BlurOverlay />}
       <QuickSaveModal />
       <SearchModal isOpen={isSearchOpen} data={data} onClose={() => setIsSearchOpen(false)} />
+      <SettingsModal isOpen={settingsModalOpen} onClose={closeSettingsModal} />
     </div>
   );
 }

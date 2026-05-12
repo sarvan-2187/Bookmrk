@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Board, Bookmark, BookmrkData, Page } from '../shared/types';
+import { Board, Bookmark, BookmrkData, Page, Settings } from '../shared/types';
 import { StorageAdapter } from '../storage/local';
 import { generateId } from '../shared/utils';
 
@@ -12,6 +12,8 @@ interface AppState {
   quickSaveOpen: boolean;
   dragMode: boolean;
   toasts: { id: string; message: string; type?: 'info' | 'success' | 'error' }[];
+  settingsModalOpen: boolean;
+  backgroundModalOpen: boolean;
   // Actions
   initialize: () => Promise<void>;
   setActivePage: (pageId: string) => void;
@@ -20,9 +22,14 @@ interface AppState {
   toggleDragMode: () => void;
   openQuickSave: () => void;
   closeQuickSave: () => void;
+  openSettingsModal: () => void;
+  closeSettingsModal: () => void;
   // Background customization
   setBackground: (bg: { type: 'color' | 'image'; value: string } | null) => void;
   clearBackground: () => void;
+  setBackgroundModalOpen: (open: boolean) => void;
+  // Settings management
+  updateSettings: (settings: Partial<Settings>) => void;
   // Toasts
   addToast: (message: string, type?: 'info' | 'success' | 'error') => void;
   removeToast: (id: string) => void;
@@ -84,7 +91,12 @@ const DEFAULT_DATA: BookmrkData = {
       ],
       visibleBookmarksPerBoard: 6
     }
-  ]
+  ],
+  settings: {
+    openLinksInNewTab: false,
+    showBookmarkDescriptions: true,
+    compactMode: false
+  }
 };
 
 function cloneData(source: BookmrkData): BookmrkData {
@@ -92,6 +104,7 @@ function cloneData(source: BookmrkData): BookmrkData {
     version: source.version,
     chromeBookmarksImported: source.chromeBookmarksImported ?? false,
     background: source.background ?? null,
+    settings: source.settings ? { ...source.settings } : undefined,
     pages: source.pages.map((page) => ({
       ...page,
       boards: page.boards.map((board) => ({
@@ -168,6 +181,7 @@ export const useStore = create<AppState>((set, get) => ({
   quickSaveOpen: false,
   dragMode: false,
   toasts: [],
+  settingsModalOpen: false,
   // UI state
 
 
@@ -235,6 +249,8 @@ export const useStore = create<AppState>((set, get) => ({
   toggleDragMode: () => set((state) => ({ dragMode: !state.dragMode })),
   openQuickSave: () => set({ quickSaveOpen: true }),
   closeQuickSave: () => set({ quickSaveOpen: false }),
+  openSettingsModal: () => set({ settingsModalOpen: true }),
+  closeSettingsModal: () => set({ settingsModalOpen: false }),
 
   setBackground: (bg) => {
     const { data } = get();
@@ -247,6 +263,19 @@ export const useStore = create<AppState>((set, get) => ({
     const { data } = get();
     if (!data) return;
     const newData = { ...data, background: null };
+    set({ data: newData });
+    StorageAdapter.save(newData);
+  },
+  updateSettings: (settings) => {
+    const { data } = get();
+    if (!data) return;
+    const newData = {
+      ...data,
+      settings: {
+        ...data.settings,
+        ...settings
+      }
+    };
     set({ data: newData });
     StorageAdapter.save(newData);
   },

@@ -15,9 +15,14 @@ interface BookmarkTileProps {
 }
 
 export function BookmarkTile({ bookmark, boardId, pageId, isOverlay }: BookmarkTileProps) {
-  const { deleteBookmark, dragMode, addToast } = useStore();
+  const { deleteBookmark, dragMode, addToast, data } = useStore();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  
+  const settings = data?.settings;
+  const compactMode = settings?.compactMode ?? false;
+  const showDescriptions = (settings?.showBookmarkDescriptions ?? true) && !compactMode;
+  const openInNewTab = settings?.openLinksInNewTab ?? false;
   
   // Truncate bookmark title to 15 chars, if exceeded show 12 chars + "..."
   const truncatedTitle = bookmark.title.length > 15 ? bookmark.title.substring(0, 12) + '...' : bookmark.title;
@@ -60,7 +65,7 @@ export function BookmarkTile({ bookmark, boardId, pageId, isOverlay }: BookmarkT
   };
 
   const handleOpen = () => {
-    window.open(bookmark.url, '_blank');
+    window.open(bookmark.url, openInNewTab ? '_blank' : '_self');
   };
 
   return (
@@ -69,7 +74,8 @@ export function BookmarkTile({ bookmark, boardId, pageId, isOverlay }: BookmarkT
       style={style}
       onClick={!dragMode ? handleOpen : undefined}
       className={cn(
-        "group relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 cursor-pointer",
+        "group relative flex items-center gap-3 rounded-xl transition-all duration-200 cursor-pointer",
+        compactMode ? 'px-2 py-1.5' : 'px-3 py-2.5',
         dragMode ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer',
         isDark ? "hover:bg-white/5 border border-transparent hover:border-white/5" : "hover:bg-zinc-100 border border-transparent hover:border-zinc-200",
         isDragging && "opacity-30",
@@ -78,7 +84,7 @@ export function BookmarkTile({ bookmark, boardId, pageId, isOverlay }: BookmarkT
       {...attributes}
       {...(dragMode ? listeners : {})}
     >
-      <div className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden transition-colors ${isDark ? 'bg-white/5 border border-white/5 group-hover:border-white/10' : 'bg-zinc-100 border border-zinc-200 group-hover:border-zinc-300'}`}>
+      <div className={`shrink-0 ${compactMode ? 'w-6 h-6' : 'w-8 h-8'} rounded-lg flex items-center justify-center overflow-hidden transition-colors ${isDark ? 'bg-white/5 border border-white/5 group-hover:border-white/10' : 'bg-zinc-100 border border-zinc-200 group-hover:border-zinc-300'}`}>
         {bookmark.favicon ? (
           <img src={bookmark.favicon} alt="" className="w-4 h-4 object-contain filter brightness-110" />
         ) : (
@@ -87,9 +93,9 @@ export function BookmarkTile({ bookmark, boardId, pageId, isOverlay }: BookmarkT
       </div>
       
       <div className="flex-1 min-w-0 pr-8">
-        <h4 className={`text-[13px] font-medium truncate transition-colors ${isDark ? 'text-zinc-200 group-hover:text-white' : 'text-zinc-800 group-hover:text-zinc-950'}`} title={bookmark.title}>{truncatedTitle}</h4>
-        {!!(bookmark.description || bookmark.note) && (
-          <p className={`text-[10px] truncate mt-0.5 font-medium tracking-wide transition-colors ${isDark ? 'text-zinc-500 group-hover:text-zinc-400' : 'text-zinc-500 group-hover:text-zinc-700'}`}>
+        <h4 className={`font-medium truncate transition-colors ${compactMode ? 'text-[11px]' : 'text-[13px]'} ${isDark ? 'text-zinc-200 group-hover:text-white' : 'text-zinc-800 group-hover:text-zinc-950'}`} title={bookmark.title}>{truncatedTitle}</h4>
+        {showDescriptions && !!(bookmark.description || bookmark.note) && (
+          <p className={`truncate mt-0.5 font-medium tracking-wide transition-colors ${compactMode ? 'text-[9px]' : 'text-[10px]'} ${isDark ? 'text-zinc-500 group-hover:text-zinc-400' : 'text-zinc-500 group-hover:text-zinc-700'}`}>
             {bookmark.description || bookmark.note}
           </p>
         )}

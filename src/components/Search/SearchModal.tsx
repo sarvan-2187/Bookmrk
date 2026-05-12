@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { ExternalLink, Search } from 'lucide-react';
 import { BookmrkData } from '../../shared/types';
 import { useStore } from '../../store/useStore';
+import { getModalBackgroundStyle } from '../../shared/utils';
 
 type SearchResult = {
   pageId: string;
@@ -61,7 +62,9 @@ export function SearchModal({ isOpen, data, onClose }: SearchModalProps) {
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const bgIsImage = data?.background?.type === 'image';
   const setActivePage = useStore((state) => state.setActivePage);
+  const openInNewTab = data?.settings?.openLinksInNewTab ?? false;
 
   const results = useMemo(() => buildResults(data, query), [data, query]);
 
@@ -95,7 +98,7 @@ export function SearchModal({ isOpen, data, onClose }: SearchModalProps) {
         event.preventDefault();
         const result = results[activeIndex];
         setActivePage(result.pageId);
-        window.open(result.url, '_blank', 'noopener,noreferrer');
+        window.open(result.url, openInNewTab ? '_blank' : '_self', 'noopener,noreferrer');
         onClose();
       }
     };
@@ -112,7 +115,8 @@ export function SearchModal({ isOpen, data, onClose }: SearchModalProps) {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/65 p-4"
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+      style={bgIsImage ? { backgroundColor: 'rgba(0, 0, 0, 0.3)', backdropFilter: 'blur(10px)' } : { backgroundColor: 'rgba(0, 0, 0, 0.65)' }}
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -152,7 +156,7 @@ export function SearchModal({ isOpen, data, onClose }: SearchModalProps) {
                     onMouseEnter={() => setActiveIndex(index)}
                     onClick={() => {
                       setActivePage(result.pageId);
-                      window.open(result.url, '_blank', 'noopener,noreferrer');
+                      window.open(result.url, openInNewTab ? '_blank' : '_self', 'noopener,noreferrer');
                       onClose();
                     }}
                     className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors ${

@@ -1,5 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
+import { useStore } from '../../store/useStore';
+import { getModalBackgroundStyle } from '../../shared/utils';
 
 type AddBookmarkModalProps = {
   isOpen: boolean;
@@ -9,9 +11,11 @@ type AddBookmarkModalProps = {
 };
 
 export function AddBookmarkModal({ isOpen, boardName, onClose, onSave }: AddBookmarkModalProps) {
+  const { data } = useStore();
   const [url, setUrl] = useState('');
   const [title, setTitle] = useState('');
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const bgIsImage = data?.background?.type === 'image';
 
   useEffect(() => {
     if (!isOpen) return;
@@ -47,7 +51,8 @@ export function AddBookmarkModal({ isOpen, boardName, onClose, onSave }: AddBook
 
   return createPortal(
     <div 
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4" 
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4" 
+      style={bgIsImage ? { backgroundColor: 'rgba(0, 0, 0, 0.3)', backdropFilter: 'blur(10px)' } : { backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}

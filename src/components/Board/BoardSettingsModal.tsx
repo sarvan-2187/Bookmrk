@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AlertTriangle, Rocket, Save, Trash2 } from 'lucide-react';
 import { Board } from '../../shared/types';
+import { useStore } from '../../store/useStore';
+import { getModalBackgroundStyle } from '../../shared/utils';
 
 type BoardSettingsModalProps = {
   isOpen: boolean;
@@ -20,7 +22,9 @@ export function BoardSettingsModal({
   onDeleteBoard,
   onSummonBoard,
 }: BoardSettingsModalProps) {
+  const { data } = useStore();
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const bgIsImage = data?.background?.type === 'image';
   const [name, setName] = useState(board.name);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -56,7 +60,8 @@ export function BoardSettingsModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4"
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+      style={bgIsImage ? { backgroundColor: 'rgba(0, 0, 0, 0.3)', backdropFilter: 'blur(10px)' } : { backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}

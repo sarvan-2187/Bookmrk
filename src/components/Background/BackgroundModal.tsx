@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useStore } from '../../store/useStore';
+import { getModalBackgroundStyle } from '../../shared/utils';
 
 type BackgroundModalProps = {
   isOpen: boolean;
@@ -11,8 +12,8 @@ export function BackgroundModal({ isOpen, onClose }: BackgroundModalProps) {
   const { data, setBackground, clearBackground } = useStore();
   const current = data?.background || null;
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const bgIsImage = data?.background?.type === 'image';
 
-  const [hex, setHex] = useState('');
   const [url, setUrl] = useState('');
   const [filePreview, setFilePreview] = useState<string | null>(null);
 
@@ -20,10 +21,8 @@ export function BackgroundModal({ isOpen, onClose }: BackgroundModalProps) {
     if (!isOpen) return;
     // prefill with current values
     if (current) {
-      if (current.type === 'color') setHex(current.value);
       if (current.type === 'image') setUrl(current.value);
     } else {
-      setHex('');
       setUrl('');
       setFilePreview(null);
     }
@@ -34,18 +33,6 @@ export function BackgroundModal({ isOpen, onClose }: BackgroundModalProps) {
   }, [isOpen, current, onClose]);
 
   if (!isOpen) return null;
-
-  const isValidHex = (v: string) => /^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/.test(v.trim());
-
-  const applyHex = () => {
-    const value = hex.trim();
-    if (!isValidHex(value)) {
-      alert('Please enter a valid HEX color like #RRGGBB');
-      return;
-    }
-    setBackground({ type: 'color', value });
-    onClose();
-  };
 
   const applyUrl = () => {
     const v = url.trim();
@@ -73,7 +60,8 @@ export function BackgroundModal({ isOpen, onClose }: BackgroundModalProps) {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4"
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+      style={bgIsImage ? { backgroundColor: 'rgba(0, 0, 0, 0.3)', backdropFilter: 'blur(10px)' } : { backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -85,23 +73,10 @@ export function BackgroundModal({ isOpen, onClose }: BackgroundModalProps) {
       >
         <div className={`px-6 py-4 border-b ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
           <h3 className={`text-lg font-semibold ${isDark ? 'text-zinc-100' : 'text-zinc-900'}`}>Backgrounds</h3>
-          <p className={`mt-1 text-sm ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>Choose a solid color (HEX), provide an image URL, or upload an image.</p>
+          <p className={`mt-1 text-sm ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>Provide an image URL or upload an image.</p>
         </div>
 
         <div className="px-6 py-6 space-y-4">
-          <div>
-            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>Solid Color (HEX)</label>
-            <div className="flex gap-2">
-              <input
-                placeholder="#1f6feb"
-                value={hex}
-                onChange={(e) => setHex(e.target.value)}
-                className={`flex-1 rounded-md border px-3 py-2 outline-none ${isDark ? 'border-zinc-800 bg-zinc-900 text-zinc-100 placeholder:text-zinc-500' : 'border-zinc-300 bg-white text-zinc-900 placeholder:text-zinc-500'}`}
-              />
-              <button onClick={applyHex} className={`px-4 py-2 rounded-md font-medium ${isDark ? 'bg-zinc-100 text-zinc-900' : 'bg-zinc-900 text-zinc-100'}`}>Apply</button>
-            </div>
-          </div>
-
           <div>
             <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>Image URL</label>
             <div className="flex gap-2">

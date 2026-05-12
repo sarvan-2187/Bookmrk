@@ -1,4 +1,4 @@
-import { EyeOff, PanelLeft, Plus, Search, Move } from 'lucide-react';
+import { EyeOff, PanelLeft, Plus, Search, Move, Settings } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
 type ToolbarProps = {
@@ -6,7 +6,7 @@ type ToolbarProps = {
 };
 
 export function Toolbar({ onOpenSearch }: ToolbarProps) {
-  const { toggleSidebar, toggleBlurMode, toggleDragMode, data, activePageId, openQuickSave, dragMode, addToast } = useStore();
+  const { toggleSidebar, toggleBlurMode, toggleDragMode, data, activePageId, openQuickSave, openSettingsModal, dragMode, addToast } = useStore();
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   
   const activePage = data?.pages.find(p => p.id === activePageId);
@@ -55,6 +55,13 @@ export function Toolbar({ onOpenSearch }: ToolbarProps) {
           title="Toggle Blur Mode"
         >
           <EyeOff className="w-5 h-5" />
+        </button>
+        <button
+          onClick={openSettingsModal}
+          className={`p-1.5 rounded-md transition-colors ${isDark ? 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800' : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100'}`}
+          title="Settings"
+        >
+          <Settings className="w-5 h-5" />
         </button>
         {/* Search could be a simulated keyboard shortcut Ctrl+K */}
         <button 

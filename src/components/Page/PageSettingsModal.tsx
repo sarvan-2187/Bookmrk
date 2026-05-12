@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AlertTriangle, Save, Trash2 } from 'lucide-react';
+import { useStore } from '../../store/useStore';
+import { getModalBackgroundStyle } from '../../shared/utils';
 
 type PageSettingsModalProps = {
   isOpen: boolean;
@@ -12,7 +14,9 @@ type PageSettingsModalProps = {
   onDeletePage: () => void;
 };
 export function PageSettingsModal({ isOpen, pageName, onClose, onSaveName, visibleCount = 6, onSaveVisibleCount, onDeletePage }: PageSettingsModalProps) {
+  const { data } = useStore();
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const bgIsImage = data?.background?.type === 'image';
   const [name, setName] = useState(pageName);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [visible, setVisible] = useState<number>(visibleCount);
@@ -39,7 +43,8 @@ export function PageSettingsModal({ isOpen, pageName, onClose, onSaveName, visib
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4"
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+      style={bgIsImage ? { backgroundColor: 'rgba(0, 0, 0, 0.3)', backdropFilter: 'blur(10px)' } : { backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
