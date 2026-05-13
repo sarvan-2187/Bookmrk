@@ -33,7 +33,7 @@ Key design goals:
 - Organize bookmarks into Boards and Pages (like folders + boards)
 - Organize boards in a canvas-style 4-column layout, including empty columns as valid drop targets
 - Local-first persistence with optional Chrome bookmarks import
-- Configurable background (HEX, image URL, upload)
+- Configurable background (image URL, upload)
 - Accessible, centralized modals rendered via portals for consistent UX
 
 ## Features
