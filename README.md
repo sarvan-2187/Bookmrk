@@ -126,8 +126,16 @@ Ctrl/Cmd + Shift + Y
 ## Keyboard Shortcuts
 
 - Quick Save: `Ctrl`/`Cmd` + `Shift` + `Y` — save current browser page to `Quick Saves`.
-- Global focus/search (if configured): open via toolbar search button.
-- Settings: open via settings icon in toolbar.
+- Toggle Sidebar: `S` — toggle the left sidebar (works when not typing in an input).
+- New Page: `P` — open the "New Page" modal to create a page.
+- Open Settings: `I` — open the Settings modal.
+- Toggle Blur/Privacy: `X` — toggle the blur/privacy overlay (useful to hide sensitive content).
+- Search: `/` — open the quick search (blocked while Drag Mode is active).
+- Search (toolbar): `Ctrl`/`Cmd` + `K` — focus/open the toolbar search (where available).
+
+Notes:
+- Shortcuts are disabled while typing in inputs, textareas, or contenteditable elements.
+- Some actions (like Search) are blocked when Drag Mode is active to prevent accidental triggers.
 
 Note: Browser-level keyboard handling may vary across platforms and OS; when running as an extension, Chrome-specific platform behavior applies.
 
@@ -182,6 +190,16 @@ Background types:
 - The app supports light/dark surfaces and respects the user's `prefers-color-scheme` by default. Modal surfaces use `#000000` in dark mode and `#FFFFFF` in light mode to ensure contrast and consistent visuals.
 - Backgrounds applied via the Background modal are persisted in the store and affect the home page only. You can set an external image URL or upload an image (stored as data URL). Uploaded images are stored as data URLs — note that large images can inflate storage. Consider compressing images before upload.
 - Modal backgrounds automatically apply glassmorphism (blur + transparency) when an image background is active, creating a modern frosted-glass appearance. When using system defaults (light/dark mode), modals use solid backgrounds for clarity.
+
+### Themes
+
+Bookmrk provides three built-in visual themes (selectable from the Palette menu in the toolbar or via the Appearance settings):
+
+- **Discord** (default): a dense, compact shell inspired by the Discord UI.
+- **Simple**: a cleaner top-tab layout with reduced chrome and clearer spacing.
+- **NeoBrutalist**: high-contrast white-and-black styling with stronger borders and blocky shadows.
+
+These theme choices are persisted in the stored settings as `themeMode` with allowed values `discord`, `simple`, or `neobrutalist` (see `src/shared/types.ts`).
 
 ## Architecture & Code Structure
 
