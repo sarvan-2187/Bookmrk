@@ -47,6 +47,12 @@ export class StorageAdapter {
             label: 'Compact mode',
             description: 'Reduce spacing to show more bookmarks',
             details: 'Compact mode hides descriptions and reduces size to accommodate more bookmarks per board.'
+          },
+          themeMode: {
+            enabled: data.settings?.themeMode ?? 'discord',
+            label: 'Theme mode',
+            description: 'Switch between Discord, Simple Mode, and NeoBrutalist layouts',
+            details: 'Discord keeps the current denser shell, Simple Mode uses a lighter top-tab layout, and NeoBrutalist uses a white-and-black high-contrast shell.'
           }
         },
         behavior: {

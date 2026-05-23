@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { ExternalLink, Search } from 'lucide-react';
 import { BookmrkData } from '../../shared/types';
 import { useStore } from '../../store/useStore';
-import { getModalBackgroundStyle } from '../../shared/utils';
+import { getModalBackgroundStyle, isNeoBrutalistTheme } from '../../shared/utils';
 
 type SearchResult = {
   pageId: string;
@@ -63,6 +63,7 @@ export function SearchModal({ isOpen, data, onClose }: SearchModalProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   const bgIsImage = data?.background?.type === 'image';
+  const isNeoBrutalistMode = isNeoBrutalistTheme(data);
   const setActivePage = useStore((state) => state.setActivePage);
   const openInNewTab = data?.settings?.openLinksInNewTab ?? false;
 
@@ -115,34 +116,34 @@ export function SearchModal({ isOpen, data, onClose }: SearchModalProps) {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
-      style={bgIsImage ? { backgroundColor: 'rgba(0, 0, 0, 0.3)', backdropFilter: 'blur(10px)' } : { backgroundColor: 'rgba(0, 0, 0, 0.65)' }}
+      className="fixed inset-0 z-60 flex items-center justify-center p-4"
+      style={isNeoBrutalistMode ? { backgroundColor: 'rgba(255, 255, 255, 0.88)' } : bgIsImage ? { backgroundColor: 'rgba(0, 0, 0, 0.3)', backdropFilter: 'blur(10px)' } : { backgroundColor: 'rgba(0, 0, 0, 0.65)' }}
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
     >
       <div
-        className={`w-full max-w-2xl overflow-hidden rounded-2xl border shadow-2xl ${isDark ? 'border-zinc-700' : 'border-zinc-200'}`}
-        style={{ backgroundColor: isDark ? '#000000' : '#ffffff' }}
+        className={`w-full max-w-2xl overflow-hidden rounded-2xl border shadow-2xl ${isNeoBrutalistMode ? 'border-2 border-black shadow-[8px_8px_0_#000]' : isDark ? 'border-zinc-700' : 'border-zinc-200'}`}
+        style={{ backgroundColor: isNeoBrutalistMode ? '#ffffff' : isDark ? '#000000' : '#ffffff' }}
         onClick={(event) => event.stopPropagation()}
       >
-        <div className={`flex items-center gap-3 border-b px-5 py-4 ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
-          <Search className={`h-5 w-5 ${isDark ? 'text-zinc-300' : 'text-zinc-600'}`} />
+        <div className={`flex items-center gap-3 border-b px-5 py-4 ${isNeoBrutalistMode ? 'border-black' : isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
+          <Search className={`h-5 w-5 ${isNeoBrutalistMode ? 'text-black' : isDark ? 'text-zinc-300' : 'text-zinc-600'}`} />
           <input
             autoFocus
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search bookmarks, URLs, tags, boards..."
-            className={`w-full bg-transparent outline-none ${isDark ? 'text-zinc-50 placeholder:text-zinc-400' : 'text-zinc-900 placeholder:text-zinc-500'}`}
+            className={`w-full bg-transparent outline-none ${isNeoBrutalistMode ? 'text-black placeholder:text-black/50' : isDark ? 'text-zinc-50 placeholder:text-zinc-400' : 'text-zinc-900 placeholder:text-zinc-500'}`}
           />
-          <span className={`rounded-md border px-2 py-1 text-[11px] uppercase tracking-wider ${isDark ? 'border-zinc-700 bg-zinc-900 text-zinc-300' : 'border-zinc-300 bg-zinc-100 text-zinc-700'}`}>
+          <span className={`rounded-md border px-2 py-1 text-[11px] uppercase tracking-wider ${isNeoBrutalistMode ? 'border-2 border-black bg-white text-black' : isDark ? 'border-zinc-700 bg-zinc-900 text-zinc-300' : 'border-zinc-300 bg-zinc-100 text-zinc-700'}`}>
             /
           </span>
         </div>
 
         <div className="max-h-[60vh] overflow-y-auto p-2">
           {results.length === 0 ? (
-            <div className={`px-4 py-10 text-center text-sm ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>
+            <div className={`px-4 py-10 text-center text-sm ${isNeoBrutalistMode ? 'text-black' : isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>
               {query.trim() ? 'No bookmarks matched your search.' : 'Type to search all bookmarks across every board.'}
             </div>
           ) : (
@@ -161,11 +162,11 @@ export function SearchModal({ isOpen, data, onClose }: SearchModalProps) {
                     }}
                     className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors ${
                       isActive
-                        ? isDark ? 'border-zinc-600 bg-zinc-900' : 'border-zinc-300 bg-zinc-100'
-                        : isDark ? 'border-transparent bg-transparent hover:border-zinc-700 hover:bg-zinc-900/60' : 'border-transparent bg-transparent hover:border-zinc-200 hover:bg-zinc-100/70'
+                        ? isNeoBrutalistMode ? 'border-2 border-black bg-black text-white shadow-[4px_4px_0_#000]' : isDark ? 'border-zinc-600 bg-zinc-900' : 'border-zinc-300 bg-zinc-100'
+                        : isNeoBrutalistMode ? 'border-2 border-black bg-white text-black hover:bg-zinc-100' : isDark ? 'border-transparent bg-transparent hover:border-zinc-700 hover:bg-zinc-900/60' : 'border-transparent bg-transparent hover:border-zinc-200 hover:bg-zinc-100/70'
                     }`}
                   >
-                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border ${isDark ? 'border-zinc-700 bg-zinc-900' : 'border-zinc-300 bg-zinc-100'}`}>
+                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border ${isNeoBrutalistMode ? 'border-2 border-black bg-white' : isDark ? 'border-zinc-700 bg-zinc-900' : 'border-zinc-300 bg-zinc-100'}`}>
                       {result.favicon ? (
                         <img src={result.favicon} alt="" className="h-4 w-4 object-contain" />
                       ) : (
@@ -175,16 +176,16 @@ export function SearchModal({ isOpen, data, onClose }: SearchModalProps) {
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <h4 className={`truncate text-sm font-medium ${isDark ? 'text-zinc-50' : 'text-zinc-900'}`}>{result.title}</h4>
-                        <span className={`rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wider ${isDark ? 'border-zinc-700 text-zinc-300' : 'border-zinc-300 text-zinc-700'}`}>
+                        <h4 className={`truncate text-sm font-medium ${isNeoBrutalistMode ? (isActive ? 'text-white' : 'text-black') : isDark ? 'text-zinc-50' : 'text-zinc-900'}`}>{result.title}</h4>
+                        <span className={`rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wider ${isNeoBrutalistMode ? (isActive ? 'border-black text-white' : 'border-2 border-black text-black') : isDark ? 'border-zinc-700 text-zinc-300' : 'border-zinc-300 text-zinc-700'}`}>
                           {result.pageName}
                         </span>
                       </div>
-                      <p className={`truncate text-xs ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>{result.url.replace(/^https?:\/\//, '').replace(/^www\./, '')}</p>
-                      <p className={`mt-1 truncate text-[11px] ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>Board: {result.boardName}</p>
+                      <p className={`truncate text-xs ${isNeoBrutalistMode ? (isActive ? 'text-white/80' : 'text-black/80') : isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>{result.url.replace(/^https?:\/\//, '').replace(/^www\./, '')}</p>
+                      <p className={`mt-1 truncate text-[11px] ${isNeoBrutalistMode ? (isActive ? 'text-white/70' : 'text-black/70') : isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>Board: {result.boardName}</p>
                     </div>
 
-                    <ExternalLink className={`h-4 w-4 shrink-0 ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`} />
+                    <ExternalLink className={`h-4 w-4 shrink-0 ${isNeoBrutalistMode ? (isActive ? 'text-white' : 'text-black') : isDark ? 'text-zinc-400' : 'text-zinc-600'}`} />
                   </button>
                 );
               })}

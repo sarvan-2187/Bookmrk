@@ -9,6 +9,9 @@ interface AppState {
   activeSidebar: boolean;
   activePageId: string | null;
   blurMode: boolean;
+  // Temporary unblur preview state
+  tempUnblurBookmarkId?: string | null;
+  tempUnblurRect?: { left: number; top: number; width: number; height: number } | null;
   quickSaveOpen: boolean;
   dragMode: boolean;
   toasts: { id: string; message: string; type?: 'info' | 'success' | 'error' }[];
@@ -18,6 +21,7 @@ interface AppState {
   initialize: () => Promise<void>;
   setActivePage: (pageId: string) => void;
   toggleBlurMode: () => void;
+  setBlurMode: (on: boolean) => void;
   toggleSidebar: () => void;
   toggleDragMode: () => void;
   openQuickSave: () => void;
@@ -63,6 +67,9 @@ interface AppState {
     skipped: number;
   };
   setPageVisibleBookmarks: (pageId: string, count: number) => void;
+  // Temporary unblur preview actions
+  showTemporaryUnblur: (bookmarkId: string, rect: { left: number; top: number; width: number; height: number }) => void;
+  clearTemporaryUnblur: () => void;
 }
 
 const DEFAULT_DATA: BookmrkData = {
@@ -95,7 +102,8 @@ const DEFAULT_DATA: BookmrkData = {
   settings: {
     openLinksInNewTab: false,
     showBookmarkDescriptions: true,
-    compactMode: false
+    compactMode: false,
+    themeMode: 'discord'
   }
 };
 
@@ -178,6 +186,8 @@ export const useStore = create<AppState>((set, get) => ({
   activeSidebar: true,
   activePageId: null,
   blurMode: false,
+  tempUnblurBookmarkId: null,
+  tempUnblurRect: null,
   quickSaveOpen: false,
   dragMode: false,
   toasts: [],
@@ -245,6 +255,7 @@ export const useStore = create<AppState>((set, get) => ({
   setActivePage: (pageId) => set({ activePageId: pageId }),
 
   toggleBlurMode: () => set((state) => ({ blurMode: !state.blurMode })),
+  setBlurMode: (on: boolean) => set({ blurMode: on }),
   toggleSidebar: () => set((state) => ({ activeSidebar: !state.activeSidebar })),
   toggleDragMode: () => set((state) => ({ dragMode: !state.dragMode })),
   openQuickSave: () => set({ quickSaveOpen: true }),
@@ -292,6 +303,25 @@ export const useStore = create<AppState>((set, get) => ({
   // Background modal control
   backgroundModalOpen: false,
   setBackgroundModalOpen: (open: boolean) => set({ backgroundModalOpen: open }),
+
+  // Temporary unblur preview implementation
+  showTemporaryUnblur: (bookmarkId, rect) => {
+    // Persist the unblur state until explicitly cleared (e.g., on mouse leave)
+    set({ tempUnblurBookmarkId: bookmarkId, tempUnblurRect: rect });
+  },
+
+  clearTemporaryUnblur: () => {
+    try {
+      const existing = (window as any).__bookmrk_temp_unblur_timer;
+      if (existing) {
+        clearTimeout(existing);
+        (window as any).__bookmrk_temp_unblur_timer = null;
+      }
+    } catch (e) {
+      // ignore
+    }
+    set({ tempUnblurBookmarkId: null, tempUnblurRect: null });
+  },
 
   addPage: (name) => {
     const { data } = get();

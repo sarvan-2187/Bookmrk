@@ -20,6 +20,8 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
   const [isAddBookmarkOpen, setIsAddBookmarkOpen] = useState(false);
   const [isBoardSettingsOpen, setIsBoardSettingsOpen] = useState(false);
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const themeMode = useStore((state) => state.data?.settings?.themeMode ?? 'discord');
+  const isNeoBrutalistMode = themeMode === 'neobrutalist';
   
   const {
     attributes,
@@ -134,27 +136,29 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
         ref={setNodeRef}
         style={style}
         className={cn(
-          "w-full flex flex-col rounded-2xl overflow-hidden shadow-2xl border transition-all duration-200",
-          isDark
+          "w-full flex flex-col rounded-2xl overflow-hidden border transition-all duration-200",
+          isNeoBrutalistMode
+            ? 'border-2 border-black bg-white shadow-[6px_6px_0_#000]'
+            : isDark
             ? "backdrop-blur-xl bg-zinc-900/40 border-white/10 hover:border-white/20"
             : "backdrop-blur-xl bg-white/95 border-zinc-200 hover:border-zinc-300 shadow-[0_10px_30px_rgba(0,0,0,0.08)]",
           isDragging && "opacity-30",
-          isOverlay && (isDark ? "ring-2 ring-white/20 shadow-2xl rotate-2" : "ring-2 ring-zinc-300 shadow-2xl rotate-2")
+          isOverlay && (isNeoBrutalistMode ? "ring-2 ring-black shadow-[8px_8px_0_#000] rotate-1" : isDark ? "ring-2 ring-white/20 shadow-2xl rotate-2" : "ring-2 ring-zinc-300 shadow-2xl rotate-2")
         )}
       >
         <div 
-          className={`px-5 py-4 flex items-center justify-between cursor-grab active:cursor-grabbing border-b ${isDark ? 'border-white/5' : 'border-zinc-200'}`}
+          className={`px-5 py-4 flex items-center justify-between cursor-grab active:cursor-grabbing border-b ${isNeoBrutalistMode ? 'border-black bg-white' : isDark ? 'border-white/5' : 'border-zinc-200'}`}
           {...attributes}
           {...listeners}
         >
           <div className="flex items-center gap-3">
             {board.accentColor && (
-              <div className={`w-2 h-2 rounded-full ${isDark ? 'shadow-[0_0_8px_rgba(255,255,255,0.3)]' : 'shadow-[0_0_8px_rgba(0,0,0,0.25)]'}`} style={{ backgroundColor: board.accentColor }} />
+              <div className={`w-2 h-2 rounded-full ${isNeoBrutalistMode ? 'border border-black' : isDark ? 'shadow-[0_0_8px_rgba(255,255,255,0.3)]' : 'shadow-[0_0_8px_rgba(0,0,0,0.25)]'}`} style={{ backgroundColor: board.accentColor }} />
             )}
-            <h3 className={`font-bold text-base tracking-tight ${isDark ? 'text-zinc-100' : 'text-zinc-900'}`} title={board.name}>{truncatedName}</h3>
+            <h3 className={`font-bold text-base tracking-tight ${isNeoBrutalistMode ? 'text-black' : isDark ? 'text-zinc-100' : 'text-zinc-900'}`} title={board.name}>{truncatedName}</h3>
           </div>
           <div className="flex items-center gap-2">
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest ${isDark ? 'text-zinc-500 bg-white/5' : 'text-zinc-600 bg-zinc-100 border border-zinc-200'}`}>
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest ${isNeoBrutalistMode ? 'text-black bg-white border-2 border-black' : isDark ? 'text-zinc-500 bg-white/5' : 'text-zinc-600 bg-zinc-100 border border-zinc-200'}`}>
               {board.bookmarks.length}
             </span>
             <button 
@@ -162,7 +166,7 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
               onPointerDown={(e) => e.stopPropagation()}
               onClick={handleAddClick}
               disabled={dragMode}
-              className={`p-1 rounded-md transition-colors ${dragMode ? 'opacity-50 cursor-not-allowed' : isDark ? 'text-zinc-500 hover:text-emerald-400' : 'text-zinc-500 hover:text-emerald-600 hover:bg-emerald-50'}`}
+              className={`p-1 rounded-md transition-colors ${dragMode ? 'opacity-50 cursor-not-allowed' : isNeoBrutalistMode ? 'border-2 border-black bg-white text-black hover:bg-zinc-100 shadow-[2px_2px_0_#000]' : isDark ? 'text-zinc-500 hover:text-emerald-400' : 'text-zinc-500 hover:text-emerald-600 hover:bg-emerald-50'}`}
               title="Add bookmark"
             >
               <Plus className="w-4 h-4" />
@@ -172,7 +176,7 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
               onPointerDown={(e) => e.stopPropagation()}
               onClick={handleOpenSettings}
               disabled={dragMode}
-              className={`p-1 rounded-md transition-colors ${dragMode ? 'opacity-50 cursor-not-allowed' : isDark ? 'text-zinc-500 hover:text-red-400' : 'text-zinc-500 hover:text-red-600 hover:bg-rose-50'}`}
+              className={`p-1 rounded-md transition-colors ${dragMode ? 'opacity-50 cursor-not-allowed' : isNeoBrutalistMode ? 'border-2 border-black bg-white text-black hover:bg-zinc-100 shadow-[2px_2px_0_#000]' : isDark ? 'text-zinc-500 hover:text-red-400' : 'text-zinc-500 hover:text-red-600 hover:bg-rose-50'}`}
               title="Board settings"
             >
               <MoreHorizontal className="w-4 h-4" />
@@ -180,7 +184,7 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
           </div>
         </div>
 
-        <div className="p-2 space-y-1 min-h-[100px]">
+        <div className={`p-2 space-y-1 min-h-25 ${isNeoBrutalistMode ? 'bg-white' : ''}`}>
           <SortableContext items={board.bookmarks.map(b => b.id)} strategy={verticalListSortingStrategy}>
             {(expanded ? board.bookmarks : board.bookmarks.slice(0, visibleCount)).map(bookmark => (
               <BookmarkTile 
@@ -197,7 +201,7 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
               <button
                 type="button"
                 onClick={() => setExpanded(v => !v)}
-                className={`w-full text-sm mt-2 py-2 rounded-md ${isDark ? 'text-zinc-200 bg-zinc-800/40 hover:bg-zinc-800/30' : 'text-zinc-700 bg-zinc-100 hover:bg-zinc-200'}`}
+                className={`w-full text-sm mt-2 py-2 rounded-md ${isNeoBrutalistMode ? 'border-2 border-black bg-white text-black shadow-[2px_2px_0_#000] hover:bg-zinc-100' : isDark ? 'text-zinc-200 bg-zinc-800/40 hover:bg-zinc-800/30' : 'text-zinc-700 bg-zinc-100 hover:bg-zinc-200'}`}
               >
                 {expanded ? 'Show less' : `Show ${board.bookmarks.length - visibleCount} more`}
               </button>
@@ -205,7 +209,7 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
           )}
           
           {board.bookmarks.length === 0 && (
-            <div className={`h-24 border border-dashed rounded-xl flex items-center justify-center text-xs font-medium ${isDark ? 'border-white/5 text-zinc-600' : 'border-zinc-300 text-zinc-500 bg-zinc-50/70'}`}>
+            <div className={`h-24 border border-dashed rounded-xl flex items-center justify-center text-xs font-medium ${isNeoBrutalistMode ? 'border-black text-black bg-white' : isDark ? 'border-white/5 text-zinc-600' : 'border-zinc-300 text-zinc-500 bg-zinc-50/70'}`}>
               Drop bookmarks here
             </div>
           )}

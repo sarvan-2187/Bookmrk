@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { AlertTriangle, Rocket, Save, Trash2 } from 'lucide-react';
 import { Board } from '../../shared/types';
 import { useStore } from '../../store/useStore';
-import { getModalBackgroundStyle } from '../../shared/utils';
+import { getModalBackgroundStyle, isNeoBrutalistTheme } from '../../shared/utils';
 
 type BoardSettingsModalProps = {
   isOpen: boolean;
@@ -25,6 +25,7 @@ export function BoardSettingsModal({
   const { data } = useStore();
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   const bgIsImage = data?.background?.type === 'image';
+  const isNeoBrutalistMode = isNeoBrutalistTheme(data);
   const [name, setName] = useState(board.name);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -60,40 +61,40 @@ export function BoardSettingsModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
-      style={bgIsImage ? { backgroundColor: 'rgba(0, 0, 0, 0.3)', backdropFilter: 'blur(10px)' } : { backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
+      className="fixed inset-0 z-60 flex items-center justify-center p-4"
+      style={isNeoBrutalistMode ? { backgroundColor: 'rgba(255, 255, 255, 0.88)' } : bgIsImage ? { backgroundColor: 'rgba(0, 0, 0, 0.3)', backdropFilter: 'blur(10px)' } : { backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
     >
       <div
-        className={`w-full max-w-lg rounded-2xl border shadow-2xl overflow-hidden ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}
-        style={{ backgroundColor: isDark ? '#000000' : '#ffffff' }}
+        className={`w-full max-w-lg rounded-2xl border shadow-2xl overflow-hidden ${isNeoBrutalistMode ? 'border-2 border-black shadow-[8px_8px_0_#000]' : isDark ? 'border-zinc-800' : 'border-zinc-200'}`}
+        style={{ backgroundColor: isNeoBrutalistMode ? '#ffffff' : isDark ? '#000000' : '#ffffff' }}
         onClick={(event) => event.stopPropagation()}
       >
-        <div className={`px-5 py-4 border-b ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
-          <h3 className={`text-lg font-semibold ${isDark ? 'text-zinc-100' : 'text-zinc-900'}`}>Board Settings</h3>
-          <p className={`mt-1 text-sm ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>Manage {board.name} and run bulk actions.</p>
+        <div className={`px-5 py-4 border-b ${isNeoBrutalistMode ? 'border-black' : isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
+          <h3 className={`text-lg font-semibold ${isNeoBrutalistMode ? 'text-black' : isDark ? 'text-zinc-100' : 'text-zinc-900'}`}>Board Settings</h3>
+          <p className={`mt-1 text-sm ${isNeoBrutalistMode ? 'text-black/70' : isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>Manage {board.name} and run bulk actions.</p>
         </div>
 
         <div className="px-5 py-5 space-y-6">
           <section className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className={`text-sm font-semibold ${isDark ? 'text-zinc-200' : 'text-zinc-800'}`}>Edit board name</h4>
+              <h4 className={`text-sm font-semibold ${isNeoBrutalistMode ? 'text-black' : isDark ? 'text-zinc-200' : 'text-zinc-800'}`}>Edit board name</h4>
               <span className={`text-xs ${nameCountTone}`}>{trimmedName.length}/25</span>
             </div>
             <input
               value={name}
               onChange={(event) => setName(event.target.value.slice(0, 25))}
               placeholder="Board name"
-              className={`w-full rounded-md border px-3 py-2 outline-none focus:ring-1 ${isDark ? 'border-zinc-800 bg-zinc-900 text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-600 focus:ring-zinc-600' : 'border-zinc-300 bg-white text-zinc-900 placeholder:text-zinc-500 focus:border-zinc-400 focus:ring-zinc-400'}`}
+              className={`w-full rounded-md border px-3 py-2 outline-none focus:ring-1 ${isNeoBrutalistMode ? 'border-2 border-black bg-white text-black placeholder:text-black/40 shadow-[2px_2px_0_#000] focus:border-black focus:ring-black' : isDark ? 'border-zinc-800 bg-zinc-900 text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-600 focus:ring-zinc-600' : 'border-zinc-300 bg-white text-zinc-900 placeholder:text-zinc-500 focus:border-zinc-400 focus:ring-zinc-400'}`}
             />
             <div className="flex justify-end">
               <button
                 type="button"
                 disabled={!canSaveName}
                 onClick={() => onSaveName(trimmedName)}
-                className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${canSaveName ? isDark ? 'bg-zinc-100 text-zinc-900 hover:bg-zinc-200' : 'bg-zinc-900 text-zinc-100 hover:bg-zinc-800' : 'bg-zinc-300/50 text-zinc-500 cursor-not-allowed'}`}
+                  className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${canSaveName ? isNeoBrutalistMode ? 'border-2 border-black bg-black text-white shadow-[2px_2px_0_#000] hover:bg-zinc-900' : isDark ? 'bg-zinc-100 text-zinc-900 hover:bg-zinc-200' : 'bg-zinc-900 text-zinc-100 hover:bg-zinc-800' : 'bg-zinc-300/50 text-zinc-500 cursor-not-allowed'}`}
               >
                 <Save className="h-4 w-4" />
                 <span>Save Name</span>
@@ -101,18 +102,18 @@ export function BoardSettingsModal({
             </div>
           </section>
 
-          <section className={`rounded-xl border p-4 ${isDark ? 'border-zinc-800 bg-zinc-900/40' : 'border-zinc-200 bg-zinc-50'}`}>
+          <section className={`rounded-xl border p-4 ${isNeoBrutalistMode ? 'border-2 border-black bg-white shadow-[2px_2px_0_#000]' : isDark ? 'border-zinc-800 bg-zinc-900/40' : 'border-zinc-200 bg-zinc-50'}`}>
             <div className="flex items-center justify-between gap-3">
               <div>
-                <h4 className={`text-sm font-semibold ${isDark ? 'text-zinc-200' : 'text-zinc-800'}`}>Summon board</h4>
-                <p className={`mt-1 text-xs ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                <h4 className={`text-sm font-semibold ${isNeoBrutalistMode ? 'text-black' : isDark ? 'text-zinc-200' : 'text-zinc-800'}`}>Summon board</h4>
+                <p className={`mt-1 text-xs ${isNeoBrutalistMode ? 'text-black/70' : isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
                   Open all bookmarks from this board in new tabs ({summonCount}).
                 </p>
               </div>
               <button
                 type="button"
                 onClick={onSummonBoard}
-                className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${isDark ? 'bg-sky-200 text-sky-900 hover:bg-sky-100' : 'bg-sky-700 text-white hover:bg-sky-600'}`}
+                className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${isNeoBrutalistMode ? 'border-2 border-black bg-black text-white shadow-[2px_2px_0_#000] hover:bg-zinc-900' : isDark ? 'bg-sky-200 text-sky-900 hover:bg-sky-100' : 'bg-sky-700 text-white hover:bg-sky-600'}`}
               >
                 <Rocket className="h-4 w-4" />
                 <span>Summon</span>
@@ -120,15 +121,15 @@ export function BoardSettingsModal({
             </div>
           </section>
 
-          <section className={`rounded-xl border p-4 ${isDark ? 'border-rose-900/60 bg-rose-950/20' : 'border-rose-200 bg-rose-50'}`}>
+          <section className={`rounded-xl border p-4 ${isNeoBrutalistMode ? 'border-2 border-black bg-white shadow-[2px_2px_0_#000]' : isDark ? 'border-rose-900/60 bg-rose-950/20' : 'border-rose-200 bg-rose-50'}`}>
             <div className="flex items-start gap-3">
               <AlertTriangle className={`mt-0.5 h-4 w-4 ${isDark ? 'text-rose-300' : 'text-rose-600'}`} />
               <div className="flex-1">
-                <h4 className={`text-sm font-semibold ${isDark ? 'text-rose-200' : 'text-rose-700'}`}>Danger zone</h4>
-                <p className={`mt-1 text-xs ${isDark ? 'text-rose-200/80' : 'text-rose-700/80'}`}>
+                <h4 className={`text-sm font-semibold ${isNeoBrutalistMode ? 'text-black' : isDark ? 'text-rose-200' : 'text-rose-700'}`}>Danger zone</h4>
+                <p className={`mt-1 text-xs ${isNeoBrutalistMode ? 'text-black/70' : isDark ? 'text-rose-200/80' : 'text-rose-700/80'}`}>
                   Deleting a board removes all bookmarks inside it. This cannot be undone.
                 </p>
-                <label className={`mt-3 flex items-center gap-2 text-xs ${isDark ? 'text-rose-200' : 'text-rose-700'}`}>
+                <label className={`mt-3 flex items-center gap-2 text-xs ${isNeoBrutalistMode ? 'text-black' : isDark ? 'text-rose-200' : 'text-rose-700'}`}>
                   <input
                     type="checkbox"
                     checked={confirmDelete}
@@ -144,7 +145,7 @@ export function BoardSettingsModal({
                 type="button"
                 disabled={!confirmDelete}
                 onClick={onDeleteBoard}
-                className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${confirmDelete ? 'bg-rose-600 text-white hover:bg-rose-500' : 'bg-rose-300/40 text-rose-500 cursor-not-allowed'}`}
+                className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${confirmDelete ? isNeoBrutalistMode ? 'border-2 border-black bg-black text-white shadow-[2px_2px_0_#000] hover:bg-zinc-900' : 'bg-rose-600 text-white hover:bg-rose-500' : 'bg-rose-300/40 text-rose-500 cursor-not-allowed'}`}
               >
                 <Trash2 className="h-4 w-4" />
                 <span>Delete Board</span>
@@ -153,11 +154,11 @@ export function BoardSettingsModal({
           </section>
         </div>
 
-        <div className={`flex justify-end border-t px-5 py-4 ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
+        <div className={`flex justify-end border-t px-5 py-4 ${isNeoBrutalistMode ? 'border-black' : isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
           <button
             type="button"
             onClick={onClose}
-            className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${isDark ? 'text-zinc-300 hover:bg-zinc-900/60' : 'text-zinc-700 hover:bg-zinc-100'}`}
+            className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${isNeoBrutalistMode ? 'border-2 border-black bg-white text-black shadow-[2px_2px_0_#000] hover:bg-zinc-100' : isDark ? 'text-zinc-300 hover:bg-zinc-900/60' : 'text-zinc-700 hover:bg-zinc-100'}`}
           >
             Close
           </button>

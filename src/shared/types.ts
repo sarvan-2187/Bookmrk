@@ -34,6 +34,7 @@ export type Settings = {
   showBookmarkDescriptions?: boolean;
   // Appearance Settings
   compactMode?: boolean;
+  themeMode?: 'discord' | 'simple' | 'neobrutalist';
 };
 
 export type BookmrkData = {
