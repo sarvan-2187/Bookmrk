@@ -119,17 +119,15 @@ Ctrl/Cmd + Shift + Y
 
 ### Quick Save Flow
 
-![Quick Save Flow](docs/screenshots/flow-quick-save.png)
+<img width="1861" height="1021" alt="Discord Theme" src="https://raw.githubusercontent.com/sarvan-2187/Bookmrk/refs/heads/main/docs/screenshots/flow-quick-save.png" />
 
 ## Keyboard Shortcuts
 
-- Quick Save: `Ctrl`/`Cmd` + `Shift` + `Y` — save current browser page to `Quick Saves`.
-- Toggle Sidebar: `S` — toggle the left sidebar (works when not typing in an input).
-- New Page: `P` — open the "New Page" modal to create a page.
-- Open Settings: `I` — open the Settings modal.
-- Toggle Blur/Privacy: `X` — toggle the blur/privacy overlay (useful to hide sensitive content).
-- Search: `/` — open the quick search (blocked while Drag Mode is active).
-- Search (toolbar): `Ctrl`/`Cmd` + `K` — focus/open the toolbar search (where available).
+<img width="1861" height="1021" alt="Discord Theme" src="https://raw.githubusercontent.com/sarvan-2187/Bookmrk/refs/heads/main/docs/screenshots/key-board-shortcuts.png" />
+
+<div align="center">Keyboard Shortcuts Guide</div>
+
+<br/>
 
 Notes:
 - Shortcuts are disabled while typing in inputs, textareas, or contenteditable elements.
@@ -195,23 +193,23 @@ Bookmrk provides three built-in visual themes (selectable from the Palette menu 
 
 <div align="center">
 
-<img width="1861" height="1021" alt="Discord Theme" src="https://github.com/user-attachments/assets/329d8461-f503-44db-a3d2-c8a254c886f8" />
+<img width="1861" height="1021" alt="Discord Theme" src="https://raw.githubusercontent.com/sarvan-2187/Bookmrk/refs/heads/main/docs/screenshots/discord-theme.png" />
 
 <br/>
 
 **Discord** (default): a dense, compact shell inspired by the Discord UI.
 
-<br/><br/>
+<br/>
 
-<img width="1857" height="1025" alt="Simple Theme" src="https://github.com/user-attachments/assets/31760aed-7049-43e0-899b-ad9351b798eb" />
+<img width="1857" height="1025" alt="Simple Theme" src="https://raw.githubusercontent.com/sarvan-2187/Bookmrk/refs/heads/main/docs/screenshots/simple-theme.png" />
 
 <br/>
 
 **Simple**: a cleaner top-tab layout with reduced chrome and clearer spacing.
 
-<br/><br/>
+<br/>
 
-<img width="1863" height="1025" alt="NeoBrutalist Theme" src="https://github.com/user-attachments/assets/fef0166a-3bb4-41bf-9b52-b3b87930577f" />
+<img width="1863" height="1025" alt="NeoBrutalist Theme" src="https://raw.githubusercontent.com/sarvan-2187/Bookmrk/refs/heads/main/docs/screenshots/neobrutalist-theme.png" />
 
 <br/>
 
@@ -291,25 +289,33 @@ We welcome contributions. High-level workflow:
 
 <div align="center">
 
-![Home — 4 column grid](docs/screenshots/home-4-up.png)
+<img width="1861" height="1021" alt="Home — 4 column grid" src="https://raw.githubusercontent.com/sarvan-2187/Bookmrk/refs/heads/main/docs/screenshots/home-4-up.png" />
+
+<br/>
 
 Home page showing 4-column grid
 
-<br/><br/>
+<br/>
 
-![Quick Save Modal](docs/screenshots/quick-save-modal.png)
+<img width="1861" height="1021" alt="Quick Save Modal" src="https://raw.githubusercontent.com/sarvan-2187/Bookmrk/refs/heads/main/docs/screenshots/quick-save-modal.png" />
+
+<br/>
 
 Quick Save modal open
 
-<br/><br/>
+<br/>
 
-![Board Settings Modal](docs/screenshots/board-settings-modal.png)
+<img width="1861" height="1021" alt="Board Settings Modal" src="https://raw.githubusercontent.com/sarvan-2187/Bookmrk/refs/heads/main/docs/screenshots/board-settings-modal.png" />
+
+<br/>
 
 Board Settings modal open
 
-<br/><br/>
+<br/>
 
-![Background Modal](docs/screenshots/background-modal.png)
+<img width="1861" height="1021" alt="Background Modal" src="https://raw.githubusercontent.com/sarvan-2187/Bookmrk/refs/heads/main/docs/screenshots/background-modal.png" />
+
+<br/>
 
 Background modal showing URL/upload options
 
