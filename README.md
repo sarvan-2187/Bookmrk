@@ -362,3 +362,7 @@ A: The bookmark card itself now opens the URL when clicked, so the separate open
 This project is open source under MIT License.
 
 For questions, issues, or contributions, open an issue or pull request in the repository.
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/chart?repos=sarvan-2187/Bookmrk&type=date&legend=top-left)](https://www.star-history.com/?repos=sarvan-2187%2FBookmrk&type=date&legend=top-left)
