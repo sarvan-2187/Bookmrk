@@ -173,11 +173,11 @@ Persistence is provided by `src/storage/local.ts`. Bookmrk uses the browser exte
 
 Core TypeScript types are defined in `src/shared/types.ts`. The important shapes:
 
-- `Bookmark` — { id, url, title, notes?, createdAt }
-- `Board` — { id, name, order, columnIndex?, bookmarks: Bookmark[] }
-- `Page` — { id, name, boards: Board[] }
-- `Settings` — { openLinksInNewTab?: boolean, showBookmarkDescriptions?: boolean, compactMode?: boolean }
-- `BookmrkData` — { pages: Page[], settings: Settings, meta: { createdAt }, chromeBookmarksImported?: boolean, background?: Background | null }
+- `Bookmark` - { id, url, title, notes?, createdAt }
+- `Board` - { id, name, order, columnIndex?, bookmarks: Bookmark[] }
+- `Page` - { id, name, boards: Board[] }
+- `Settings` - { openLinksInNewTab?: boolean, showBookmarkDescriptions?: boolean, compactMode?: boolean }
+- `BookmrkData` - { pages: Page[], settings: Settings, meta: { createdAt }, chromeBookmarksImported?: boolean, background?: Background | null }
 
 Background types:
 - { type: 'image', url: 'https://...' }
