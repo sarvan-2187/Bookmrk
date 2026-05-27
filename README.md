@@ -1,13 +1,11 @@
-# Bookmrk
 
-Bookmrk is a lightweight, open-source bookmark manager built with React, TypeScript, Vite and Tailwind CSS. It is designed as a modern local-first bookmark manager with quick-save keyboard shortcuts, multi-board organization, a canvas-style 4-column board layout, Chrome import fallback, flexible backgrounds and a bunch of themes.
+<img width="2000" height="600" alt="Bookmrk" src="https://github.com/user-attachments/assets/d3ce19a4-2b43-4173-a57a-353e3d390613" />
 
-<img width="1536" height="1024" alt="bookmrk_banner" src="https://github.com/user-attachments/assets/cdac736e-526c-4e9d-bb60-5b85260cb765" />
 
+> ### Bookmrk is a lightweight, open-source bookmark manager built with React, TypeScript, Vite and Tailwind CSS. It is designed as a modern local-first bookmark manager with quick-save keyboard shortcuts, multi-board organization, a canvas-style 4-column board layout, Chrome import fallback, flexible backgrounds and a bunch of themes.
 
 This README is intended to be a comprehensive reference for users and contributors: installation, usage, architecture, data model, storage & migration, development and contribution guidelines, troubleshooting, and FAQs.
 
-The Design of Bookmrk is inspired from "DISCORD"
 
 ## Table of Contents
 - **Overview**
@@ -195,9 +193,33 @@ Background types:
 
 Bookmrk provides three built-in visual themes (selectable from the Palette menu in the toolbar or via the Appearance settings):
 
-- **Discord** (default): a dense, compact shell inspired by the Discord UI.
-- **Simple**: a cleaner top-tab layout with reduced chrome and clearer spacing.
-- **NeoBrutalist**: high-contrast white-and-black styling with stronger borders and blocky shadows.
+<div align="center">
+
+<img width="1861" height="1021" alt="Discord Theme" src="https://github.com/user-attachments/assets/329d8461-f503-44db-a3d2-c8a254c886f8" />
+
+<br/>
+
+**Discord** (default): a dense, compact shell inspired by the Discord UI.
+
+<br/><br/>
+
+<img width="1857" height="1025" alt="Simple Theme" src="https://github.com/user-attachments/assets/31760aed-7049-43e0-899b-ad9351b798eb" />
+
+<br/>
+
+**Simple**: a cleaner top-tab layout with reduced chrome and clearer spacing.
+
+<br/><br/>
+
+<img width="1863" height="1025" alt="NeoBrutalist Theme" src="https://github.com/user-attachments/assets/fef0166a-3bb4-41bf-9b52-b3b87930577f" />
+
+<br/>
+
+**NeoBrutalist**: high-contrast white-and-black styling with stronger borders and blocky shadows.
+
+</div>
+
+<br/>
 
 These theme choices are persisted in the stored settings as `themeMode` with allowed values `discord`, `simple`, or `neobrutalist` (see `src/shared/types.ts`).
 
@@ -267,24 +289,31 @@ We welcome contributions. High-level workflow:
 
 ## Example Screenshots & Annotated Flows
 
+<div align="center">
+
 ![Home — 4 column grid](docs/screenshots/home-4-up.png)
+
 Home page showing 4-column grid
-<br/>
+
+<br/><br/>
 
 ![Quick Save Modal](docs/screenshots/quick-save-modal.png)
-<br/>
+
 Quick Save modal open
-<br/>
+
+<br/><br/>
 
 ![Board Settings Modal](docs/screenshots/board-settings-modal.png)
-<br/>
+
 Board Settings modal open
-<br/>
+
+<br/><br/>
 
 ![Background Modal](docs/screenshots/background-modal.png)
-<br/>
-Background modal showing url/upload options 
-<br/>
+
+Background modal showing URL/upload options
+
+</div>
 
 ## Migration Script Example
 
@@ -329,7 +358,7 @@ A: Ensure the page has focus and the app/extension is active. Browser-level keyb
 
 Q: I imported Chrome bookmarks and the button is disabled.
 <br/>
-A: That's by design — Bookmrk sets `chromeBookmarksImported` to avoid duplicate imports. If you need to re-import, you have two safe options:
+A: That's by design, Bookmrk sets `chromeBookmarksImported` to avoid duplicate imports. If you need to re-import, you have two safe options:
 
 - Delete the `Imported Bookmarks` board from the UI; Bookmrk will automatically clear the import lock and re-enable the `Import Chrome` button.
 - Or (advanced) clear the `chromeBookmarksImported` flag manually in storage (not recommended unless you know what you're doing).
@@ -362,7 +391,3 @@ A: The bookmark card itself now opens the URL when clicked, so the separate open
 This project is open source under MIT License.
 
 For questions, issues, or contributions, open an issue or pull request in the repository.
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/chart?repos=sarvan-2187/Bookmrk&type=date&legend=top-left)](https://www.star-history.com/?repos=sarvan-2187%2FBookmrk&type=date&legend=top-left)
