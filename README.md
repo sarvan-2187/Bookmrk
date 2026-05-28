@@ -7,6 +7,8 @@
 [![The Website for this chrome extension is Powered by DigitalPlat FreeDomain Get a free domain from DigitalPlat.](https://img.shields.io/badge/DigitalPlat-Get%20a%20free%20domain%20from%20DigitalPlat.-111827?style=flat-square&logo=databricks&logoColor=93c5fd)](https://dash.domain.digitalplat.org/signup?ref=rQsyzyJRMl)
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/sarvan-2187/Bookmrk/total?style=flat-square)
 ![GitHub License](https://img.shields.io/github/license/sarvan-2187/Bookmrk?style=flat-square)
+![GitHub Repo stars](https://img.shields.io/github/stars/sarvan-2187/Bookmrk?style=flat-square&label=Stars)
+
 
 
 
