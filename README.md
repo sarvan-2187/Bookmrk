@@ -398,4 +398,4 @@ This project is open source under MIT License.
 
 For questions, issues, or contributions, open an issue or pull request in the repository.
 
-The Domain `https://bookmrk.dpdns.org` has been powered by DigitalPlat DOmains.
+The Domain `https://bookmrk.dpdns.org` has been powered by DigitalPlat Domains.
