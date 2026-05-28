@@ -5,6 +5,8 @@
 > ### Bookmrk is a lightweight, open-source bookmark manager built with React, TypeScript, Vite and Tailwind CSS. It is designed as a modern local-first bookmark manager with quick-save keyboard shortcuts, multi-board organization, a canvas-style 4-column board layout, Chrome import fallback, flexible backgrounds and a bunch of themes.
 
 [![The Website for this chrome extension is Powered by DigitalPlat FreeDomain Get a free domain from DigitalPlat.](https://img.shields.io/badge/DigitalPlat-Get%20a%20free%20domain%20from%20DigitalPlat.-111827?style=flat-square&logo=databricks&logoColor=93c5fd)](https://dash.domain.digitalplat.org/signup?ref=rQsyzyJRMl)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/sarvan-2187/Bookmrk/total?style=flat-square)
+
 
 This README is intended to be a comprehensive reference for users and contributors: installation, usage, architecture, data model, storage & migration, development and contribution guidelines, troubleshooting, and FAQs.
 
