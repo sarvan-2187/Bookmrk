@@ -199,7 +199,16 @@ Bookmrk provides three built-in visual themes (selectable from the Palette menu 
 - **Simple**: a cleaner top-tab layout with reduced chrome and clearer spacing.
 - **NeoBrutalist**: high-contrast white-and-black styling with stronger borders and blocky shadows.
 
-These theme choices are persisted in the stored settings as `themeMode` with allowed values `discord`, `simple`, or `neobrutalist` (see `src/shared/types.ts`).
+Additionally, a new **Neumorphism** theme is available which uses soft, extruded shadows and subtle inset highlights to create a tactile, 'soft UI' appearance. It emphasizes smooth rounded card surfaces and gentle inner/outer shadows — great for a modern, minimal aesthetic.
+
+Theme list (selectable from the Palette menu or via Appearance settings):
+
+- **Discord** (default): a dense, compact shell inspired by the Discord UI.
+- **Simple**: a cleaner top-tab layout with reduced chrome and clearer spacing.
+- **NeoBrutalist**: high-contrast white-and-black styling with stronger borders and blocky shadows.
+- **Neumorphism**: soft shadows, rounded cards, and inset highlights for a tactile UI.
+
+These theme choices are persisted in the stored settings as `themeMode` with allowed values `discord`, `simple`, `neobrutalist`, or `neumorphism` (see `src/shared/types.ts`).
 
 ## Architecture & Code Structure
 

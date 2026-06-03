@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Save } from 'lucide-react';
+import { Save, Upload, Trash2 } from 'lucide-react';
 import { Bookmark } from '../../shared/types';
 import { useStore } from '../../store/useStore';
 import { getModalBackgroundStyle, isNeoBrutalistTheme } from '../../shared/utils';
+import { BookmarkFavicon } from '../Shared/BookmarkFavicon';
 
 type BookmarkSettingsModalProps = {
   isOpen: boolean;
@@ -14,6 +15,15 @@ type BookmarkSettingsModalProps = {
   onDelete?: () => void;
 };
 
+function getChromeFaviconUrl(bookmarkUrl: string): string {
+  try {
+    const resolvedUrl = new URL(bookmarkUrl.startsWith('http') ? bookmarkUrl : `https://${bookmarkUrl}`);
+    return `https://www.google.com/s2/favicons?domain=${resolvedUrl.hostname}&sz=64`;
+  } catch {
+    return `https://www.google.com/s2/favicons?domain=${bookmarkUrl}&sz=64`;
+  }
+}
+
 export function BookmarkSettingsModal({ isOpen, bookmark, pageId, boardId, onClose, onDelete }: BookmarkSettingsModalProps) {
   const { updateBookmark, addToast, data } = useStore();
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -22,6 +32,8 @@ export function BookmarkSettingsModal({ isOpen, bookmark, pageId, boardId, onClo
   const [title, setTitle] = useState(bookmark.title);
   const [url, setUrl] = useState(bookmark.url);
   const [description, setDescription] = useState(bookmark.description ?? bookmark.note ?? '');
+  const [faviconUrl, setFaviconUrl] = useState(bookmark.favicon ?? getChromeFaviconUrl(bookmark.url));
+  const [faviconLabel, setFaviconLabel] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
@@ -29,9 +41,11 @@ export function BookmarkSettingsModal({ isOpen, bookmark, pageId, boardId, onClo
       setTitle(bookmark.title);
       setUrl(bookmark.url);
       setDescription(bookmark.description ?? bookmark.note ?? '');
+      setFaviconUrl(bookmark.favicon ?? getChromeFaviconUrl(bookmark.url));
+      setFaviconLabel(null);
       setConfirmDelete(false);
     }
-  }, [isOpen]);
+  }, [isOpen, bookmark]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -47,12 +61,38 @@ export function BookmarkSettingsModal({ isOpen, bookmark, pageId, boardId, onClo
   const trimmedTitle = title.trim();
   const trimmedUrl = url.trim();
   const trimmedDescription = description.trim();
-  const canSave = trimmedTitle.length > 0 && trimmedUrl.length > 0 && (trimmedTitle !== bookmark.title || trimmedUrl !== bookmark.url || trimmedDescription !== (bookmark.description ?? bookmark.note ?? ''));
+  const trimmedFaviconUrl = faviconUrl.trim();
+  const resolvedFaviconUrl = trimmedFaviconUrl || getChromeFaviconUrl(trimmedUrl || bookmark.url);
+  const initialFaviconUrl = bookmark.favicon ?? getChromeFaviconUrl(bookmark.url);
+  const canSave = trimmedTitle.length > 0 && trimmedUrl.length > 0 && (trimmedTitle !== bookmark.title || trimmedUrl !== bookmark.url || trimmedDescription !== (bookmark.description ?? bookmark.note ?? '') || resolvedFaviconUrl !== initialFaviconUrl);
 
   const titleTone = useMemo(() => {
     if (trimmedTitle.length === 0) return isDark ? 'text-rose-300' : 'text-rose-600';
     return isDark ? 'text-zinc-500' : 'text-zinc-500';
   }, [isDark, trimmedTitle.length]);
+
+  const handleFaviconUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      addToast('Please upload an image file for the favicon', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        setFaviconUrl(reader.result);
+        setFaviconLabel(file.name);
+      }
+    };
+    reader.onerror = () => {
+      addToast('Failed to read the selected favicon image', 'error');
+    };
+    reader.readAsDataURL(file);
+  };
 
   if (!isOpen) return null;
 
@@ -109,6 +149,71 @@ export function BookmarkSettingsModal({ isOpen, bookmark, pageId, boardId, onClo
             />
           </section>
 
+          <section className="space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <h4 className={`text-sm font-semibold ${isNeoBrutalistMode ? 'text-black' : isDark ? 'text-zinc-200' : 'text-zinc-800'}`}>Favicon</h4>
+              {faviconLabel ? (
+                <span className={`max-w-48 truncate text-xs ${isNeoBrutalistMode ? 'text-black/70' : isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>{faviconLabel}</span>
+              ) : (
+                <span className={`text-xs ${isNeoBrutalistMode ? 'text-black/60' : isDark ? 'text-zinc-500' : 'text-zinc-500'}`}>Optional</span>
+              )}
+            </div>
+
+            <div className={`flex items-center gap-3 rounded-xl border p-3 ${isNeoBrutalistMode ? 'border-2 border-black bg-white shadow-[2px_2px_0_#000]' : isDark ? 'border-zinc-800 bg-zinc-950/40' : 'border-zinc-200 bg-zinc-50'}`}>
+              <div className={`flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg ${isNeoBrutalistMode ? 'border-2 border-black bg-white' : isDark ? 'border border-zinc-800 bg-zinc-900' : 'border border-zinc-300 bg-white'}`}>
+                <BookmarkFavicon
+                  favicon={faviconUrl}
+                  title={bookmark.title}
+                  url={trimmedUrl || bookmark.url}
+                  isDark={isDark}
+                  isNeoBrutalistMode={isNeoBrutalistMode}
+                  imageClassName="h-6 w-6 object-contain"
+                />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <p className={`text-sm ${isNeoBrutalistMode ? 'text-black' : isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>
+                  Edit the favicon URL directly or upload a custom image.
+                </p>
+                <p className={`mt-1 text-xs ${isNeoBrutalistMode ? 'text-black/60' : isDark ? 'text-zinc-500' : 'text-zinc-500'}`}>
+                  The Chrome favicon URL is used by default.
+                </p>
+
+                <div className="mt-3 space-y-2">
+                  <input
+                    value={faviconUrl}
+                    onChange={(event) => setFaviconUrl(event.target.value)}
+                    placeholder={getChromeFaviconUrl(trimmedUrl || bookmark.url)}
+                    className={`w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring-1 ${isNeoBrutalistMode ? 'border-2 border-black bg-white text-black placeholder:text-black/40 shadow-[2px_2px_0_#000] focus:border-black focus:ring-black' : isDark ? 'border-zinc-800 bg-zinc-900 text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-600 focus:ring-zinc-600' : 'border-zinc-300 bg-white text-zinc-900 placeholder:text-zinc-500 focus:border-zinc-400 focus:ring-zinc-400'}`}
+                  />
+                  <p className={`text-[11px] ${isNeoBrutalistMode ? 'text-black/60' : isDark ? 'text-zinc-500' : 'text-zinc-500'}`}>
+                    Paste any image URL, data URL, or the Chrome favicon URL here.
+                  </p>
+                </div>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <label className={`inline-flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${isNeoBrutalistMode ? 'border-2 border-black bg-white text-black shadow-[2px_2px_0_#000] hover:bg-zinc-100' : isDark ? 'bg-zinc-100 text-zinc-900 hover:bg-zinc-200' : 'bg-zinc-900 text-zinc-100 hover:bg-zinc-800'}`}>
+                    <Upload className="h-4 w-4" />
+                    <span>Upload favicon</span>
+                    <input type="file" accept="image/*,.ico" className="hidden" onChange={handleFaviconUpload} />
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFaviconUrl(getChromeFaviconUrl(trimmedUrl || bookmark.url));
+                      setFaviconLabel(null);
+                    }}
+                    className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${isNeoBrutalistMode ? 'border-2 border-black bg-white text-black shadow-[2px_2px_0_#000] hover:bg-zinc-100' : isDark ? 'text-zinc-300 hover:bg-zinc-900/60' : 'text-zinc-700 hover:bg-zinc-100'}`}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    <span>Remove</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
         </div>
 
         <div className={`flex justify-end gap-3 border-t px-5 py-4 ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
@@ -124,7 +229,7 @@ export function BookmarkSettingsModal({ isOpen, bookmark, pageId, boardId, onClo
             disabled={!canSave}
             onClick={() => {
               try {
-                updateBookmark(pageId, boardId, bookmark.id, trimmedTitle, trimmedUrl, trimmedDescription);
+                updateBookmark(pageId, boardId, bookmark.id, trimmedTitle, trimmedUrl, trimmedDescription, resolvedFaviconUrl === initialFaviconUrl ? undefined : resolvedFaviconUrl);
                 addToast('Bookmark updated', 'success');
                 onClose();
               } catch (err) {

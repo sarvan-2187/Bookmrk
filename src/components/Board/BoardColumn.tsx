@@ -22,6 +22,7 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   const themeMode = useStore((state) => state.data?.settings?.themeMode ?? 'discord');
   const isNeoBrutalistMode = themeMode === 'neobrutalist';
+  const isNeumorphismMode = themeMode === 'neumorphism';
   
   const {
     attributes,
@@ -139,15 +140,17 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
           "w-full flex flex-col rounded-2xl overflow-hidden border transition-all duration-200",
           isNeoBrutalistMode
             ? 'border-2 border-black bg-white shadow-[6px_6px_0_#000]'
+            : isNeumorphismMode
+            ? 'neo-card'
             : isDark
             ? "backdrop-blur-xl bg-zinc-900/40 border-white/10 hover:border-white/20"
             : "backdrop-blur-xl bg-white/95 border-zinc-200 hover:border-zinc-300 shadow-[0_10px_30px_rgba(0,0,0,0.08)]",
           isDragging && "opacity-30",
-          isOverlay && (isNeoBrutalistMode ? "ring-2 ring-black shadow-[8px_8px_0_#000] rotate-1" : isDark ? "ring-2 ring-white/20 shadow-2xl rotate-2" : "ring-2 ring-zinc-300 shadow-2xl rotate-2")
+          isOverlay && (isNeoBrutalistMode ? "ring-2 ring-black shadow-[8px_8px_0_#000] rotate-1" : isNeumorphismMode ? "ring-2 ring-white/6 shadow-2xl rotate-1" : isDark ? "ring-2 ring-white/20 shadow-2xl rotate-2" : "ring-2 ring-zinc-300 shadow-2xl rotate-2")
         )}
       >
         <div 
-          className={`px-5 py-4 flex items-center justify-between cursor-grab active:cursor-grabbing border-b ${isNeoBrutalistMode ? 'border-black bg-white' : isDark ? 'border-white/5' : 'border-zinc-200'}`}
+          className={`px-5 py-4 flex items-center justify-between cursor-grab active:cursor-grabbing ${isNeoBrutalistMode ? 'border-black bg-white' : isNeumorphismMode ? 'neo-inner' : isDark ? 'border-white/5' : 'border-zinc-200'}`}
           {...attributes}
           {...listeners}
         >
@@ -184,7 +187,7 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
           </div>
         </div>
 
-        <div className={`p-2 space-y-1 min-h-25 ${isNeoBrutalistMode ? 'bg-white' : ''}`}>
+        <div className={`p-2 space-y-1 min-h-25 ${isNeoBrutalistMode ? 'bg-white' : isNeumorphismMode ? '' : ''} ${isNeumorphismMode ? 'mt-2' : ''}`}>
           <SortableContext items={board.bookmarks.map(b => b.id)} strategy={verticalListSortingStrategy}>
             {(expanded ? board.bookmarks : board.bookmarks.slice(0, visibleCount)).map(bookmark => (
               <BookmarkTile 
@@ -209,7 +212,7 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
           )}
           
           {board.bookmarks.length === 0 && (
-            <div className={`h-24 border border-dashed rounded-xl flex items-center justify-center text-xs font-medium ${isNeoBrutalistMode ? 'border-black text-black bg-white' : isDark ? 'border-white/5 text-zinc-600' : 'border-zinc-300 text-zinc-500 bg-zinc-50/70'}`}>
+            <div className={`h-24 rounded-xl flex items-center justify-center text-xs font-medium ${isNeoBrutalistMode ? 'border-black text-black bg-white' : isNeumorphismMode ? 'neo-inner text-zinc-300' : isDark ? 'border-white/5 text-zinc-600' : 'border-zinc-300 text-zinc-500 bg-zinc-50/70'}`}>
               Drop bookmarks here
             </div>
           )}

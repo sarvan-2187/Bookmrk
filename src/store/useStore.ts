@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { Board, Bookmark, BookmrkData, Page, Settings } from '../shared/types';
 import { StorageAdapter } from '../storage/local';
 import { generateId } from '../shared/utils';
+import { toast } from 'sonner';
 
 interface AppState {
   data: BookmrkData | null;
@@ -14,7 +15,6 @@ interface AppState {
   tempUnblurRect?: { left: number; top: number; width: number; height: number } | null;
   quickSaveOpen: boolean;
   dragMode: boolean;
-  toasts: { id: string; message: string; type?: 'info' | 'success' | 'error' }[];
   settingsModalOpen: boolean;
   backgroundModalOpen: boolean;
   // Actions
@@ -36,7 +36,6 @@ interface AppState {
   updateSettings: (settings: Partial<Settings>) => void;
   // Toasts
   addToast: (message: string, type?: 'info' | 'success' | 'error') => void;
-  removeToast: (id: string) => void;
 
   // Mutations
   addPage: (name: string) => void;
@@ -50,7 +49,7 @@ interface AppState {
   moveBoardToColumn: (pageId: string, boardId: string, columnIndex: number, insertIndex?: number) => void;
 
   addBookmark: (pageId: string, boardId: string, url: string, title: string, description?: string) => void;
-  updateBookmark: (pageId: string, boardId: string, bookmarkId: string, title: string, url: string, description?: string) => void;
+  updateBookmark: (pageId: string, boardId: string, bookmarkId: string, title: string, url: string, description?: string, favicon?: string | null) => void;
   deleteBookmark: (pageId: string, boardId: string, bookmarkId: string) => void;
   moveBookmark: (
     sourcePageId: string, sourceBoardId: string,
@@ -139,6 +138,15 @@ function normalizeChromeUrl(url: string): string {
   }
 }
 
+function getChromeFaviconUrl(bookmarkUrl: string): string {
+  try {
+    const resolvedUrl = new URL(bookmarkUrl.startsWith('http') ? bookmarkUrl : `https://${bookmarkUrl}`);
+    return `https://www.google.com/s2/favicons?domain=${resolvedUrl.hostname}&sz=64`;
+  } catch {
+    return `https://www.google.com/s2/favicons?domain=${bookmarkUrl}&sz=64`;
+  }
+}
+
 const BOARD_COLUMN_COUNT = 4;
 
 function rebuildBoardsFromColumns(columns: Board[][]): Board[] {
@@ -179,6 +187,7 @@ function normalizeBoardColumns(boards: Board[]): Board[] {
 }
 
 let storageSyncAttached = false;
+let uiStateSyncAttached = false;
 
 export const useStore = create<AppState>((set, get) => ({
   data: null,
@@ -190,7 +199,6 @@ export const useStore = create<AppState>((set, get) => ({
   tempUnblurRect: null,
   quickSaveOpen: false,
   dragMode: false,
-  toasts: [],
   settingsModalOpen: false,
   // UI state
 
@@ -198,6 +206,8 @@ export const useStore = create<AppState>((set, get) => ({
   initialize: async () => {
     try {
       const data = await StorageAdapter.load();
+      const uiState = await StorageAdapter.loadUIState();
+      const initialBlurMode = uiState?.blurMode ?? false;
       if (data) {
         const normalizedData = {
           ...data,
@@ -206,11 +216,11 @@ export const useStore = create<AppState>((set, get) => ({
             boards: normalizeBoardColumns(page.boards),
           })),
         };
-        set({ data: normalizedData, isLoading: false, activePageId: normalizedData.pages[0]?.id || null });
+        set({ data: normalizedData, blurMode: initialBlurMode, isLoading: false, activePageId: normalizedData.pages[0]?.id || null });
         StorageAdapter.save(normalizedData);
       } else {
         await StorageAdapter.save(DEFAULT_DATA);
-        set({ data: DEFAULT_DATA, isLoading: false, activePageId: DEFAULT_DATA.pages[0].id });
+        set({ data: DEFAULT_DATA, blurMode: initialBlurMode, isLoading: false, activePageId: DEFAULT_DATA.pages[0].id });
       }
 
       if (!storageSyncAttached && typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
@@ -246,16 +256,47 @@ export const useStore = create<AppState>((set, get) => ({
             });
         });
       }
+
+      if (!uiStateSyncAttached && typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
+        uiStateSyncAttached = true;
+        chrome.storage.onChanged.addListener((changes, areaName) => {
+          if (areaName !== 'local' || !changes.bookmrk_ui_state) return;
+
+          const nextBlurMode = changes.bookmrk_ui_state.newValue?.blurMode ?? false;
+          set({ blurMode: nextBlurMode });
+        });
+      }
+
+      if (typeof window !== 'undefined' && typeof chrome === 'undefined') {
+        window.addEventListener('storage', (event) => {
+          if (event.key !== 'bookmrk_ui_state') return;
+
+          try {
+            const nextState = event.newValue ? JSON.parse(event.newValue) as { blurMode?: boolean } : null;
+            set({ blurMode: nextState?.blurMode ?? false });
+          } catch (error) {
+            console.error('Failed to sync UI state from storage event', error);
+          }
+        });
+      }
     } catch (error) {
       console.error('Failed to load storage', error);
-      set({ data: DEFAULT_DATA, isLoading: false, activePageId: DEFAULT_DATA.pages[0].id });
+      const uiState = await StorageAdapter.loadUIState().catch(() => null);
+      set({ data: DEFAULT_DATA, blurMode: uiState?.blurMode ?? false, isLoading: false, activePageId: DEFAULT_DATA.pages[0].id });
     }
   },
 
   setActivePage: (pageId) => set({ activePageId: pageId }),
 
-  toggleBlurMode: () => set((state) => ({ blurMode: !state.blurMode })),
-  setBlurMode: (on: boolean) => set({ blurMode: on }),
+  toggleBlurMode: async () => {
+    const nextBlurMode = !get().blurMode;
+    set({ blurMode: nextBlurMode });
+    await StorageAdapter.saveUIState({ blurMode: nextBlurMode });
+  },
+  setBlurMode: async (on: boolean) => {
+    set({ blurMode: on });
+    await StorageAdapter.saveUIState({ blurMode: on });
+  },
   toggleSidebar: () => set((state) => ({ activeSidebar: !state.activeSidebar })),
   toggleDragMode: () => set((state) => ({ dragMode: !state.dragMode })),
   openQuickSave: () => set({ quickSaveOpen: true }),
@@ -291,15 +332,18 @@ export const useStore = create<AppState>((set, get) => ({
     StorageAdapter.save(newData);
   },
   addToast: (message, type = 'info') => {
-    const id = generateId();
-    set((state) => ({ toasts: [...state.toasts, { id, message, type }] }));
-    // auto remove after 4s
-    setTimeout(() => {
-      const exists = get().toasts.find(t => t.id === id);
-      if (exists) get().removeToast(id);
-    }, 4000);
+    if (type === 'success') {
+      toast.success(message);
+      return;
+    }
+
+    if (type === 'error') {
+      toast.error(message);
+      return;
+    }
+
+    toast(message);
   },
-  removeToast: (id) => set((state) => ({ toasts: state.toasts.filter(t => t.id !== id) })),
   // Background modal control
   backgroundModalOpen: false,
   setBackgroundModalOpen: (open: boolean) => set({ backgroundModalOpen: open }),
@@ -536,13 +580,12 @@ export const useStore = create<AppState>((set, get) => ({
     StorageAdapter.save(newData);
   },
 
-  updateBookmark: (pageId, boardId, bookmarkId, title, url, description) => {
+  updateBookmark: (pageId, boardId, bookmarkId, title, url, description, favicon) => {
     // implementation left simple
     const { data } = get();
     if (!data) return;
 
     const newUrl = new URL(url.startsWith('http') ? url : `https://${url}`);
-    const favicon = `https://www.google.com/s2/favicons?domain=${newUrl.hostname}&sz=64`;
 
     const newData = {
       ...data,
@@ -557,7 +600,14 @@ export const useStore = create<AppState>((set, get) => ({
               bookmarks: b.bookmarks.map(bm => {
                 if (bm.id !== bookmarkId) return bm;
                 const nextDescription = description?.trim() || undefined;
-                return { ...bm, title, url: newUrl.toString(), favicon, description: nextDescription, note: nextDescription };
+                const currentIsDefaultFavicon = !bm.favicon || bm.favicon === getChromeFaviconUrl(bm.url);
+                const nextFavicon = favicon !== undefined
+                  ? favicon || undefined
+                  : currentIsDefaultFavicon
+                    ? getChromeFaviconUrl(newUrl.toString())
+                    : bm.favicon;
+
+                return { ...bm, title, url: newUrl.toString(), favicon: nextFavicon, description: nextDescription, note: nextDescription };
               })
             };
           })

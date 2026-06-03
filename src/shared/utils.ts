@@ -14,6 +14,10 @@ export function isNeoBrutalistTheme(data: BookmrkData | undefined): boolean {
   return data?.settings?.themeMode === 'neobrutalist';
 }
 
+export function isNeumorphismTheme(data: BookmrkData | undefined): boolean {
+  return data?.settings?.themeMode === 'neumorphism';
+}
+
 export function getModalBackgroundStyle(data: BookmrkData | undefined, isDark: boolean): { backgroundColor: string; backdropFilter?: string } {
   // If background is an image, use glassmorphism
   if (data?.background?.type === 'image') {
@@ -30,9 +34,9 @@ export function getModalBackgroundStyle(data: BookmrkData | undefined, isDark: b
   }
 
   // If background is a color, use that color
-  if (data?.background?.type === 'color' && data?.background?.color) {
+  if (data?.background?.type === 'color' && data?.background?.value) {
     return {
-      backgroundColor: data.background.color
+      backgroundColor: data.background.value
     };
   }
 

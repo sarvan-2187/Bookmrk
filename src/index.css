@@ -65,3 +65,34 @@ html, body {
     background: rgba(0, 0, 0, 0.25);
   }
 }
+
+/* Neumorphism utilities */
+.neo-card {
+  border-radius: 1rem;
+  padding: 0; /* component handles inner padding */
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.35));
+  box-shadow: 8px 8px 20px rgba(0,0,0,0.55), -8px -8px 20px rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.neo-inner {
+  border-radius: 0.75rem;
+  background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(0,0,0,0.25));
+  box-shadow: inset 6px 6px 12px rgba(0,0,0,0.45), inset -6px -6px 12px rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+@media (prefers-color-scheme: light) {
+  .neo-card {
+    background: #eef2f6;
+    box-shadow: 8px 8px 20px rgba(163,177,198,0.5), -8px -8px 20px rgba(255,255,255,0.9);
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+
+  .neo-inner {
+    background: linear-gradient(180deg, #f7f9fb, #e8edf3);
+    box-shadow: inset 6px 6px 12px rgba(163,177,198,0.45), inset -6px -6px 12px rgba(255,255,255,0.9);
+    border: 1px solid rgba(0,0,0,0.04);
+  }
+}
+

@@ -10,12 +10,20 @@ import { BackgroundModal } from './components/Background/BackgroundModal';
 import { SettingsModal } from './components/Settings/SettingsModal';
 import { InputModal } from './components/Shared/InputModal';
 import { OnboardingModal } from './components/Shared/OnboardingModal';
-import { Image } from 'lucide-react';
+import { Toaster } from './components/Sonner';
+import {
+  CircleCheckIcon,
+  InfoIcon,
+  Loader2Icon,
+  OctagonXIcon,
+  TriangleAlertIcon,
+  Image,
+} from 'lucide-react';
 
 const ONBOARDING_STORAGE_KEY = 'bookmrk_onboarding_seen_v1';
 
 export default function App() {
-  const { initialize, isLoading, activeSidebar, activePageId, blurMode, dragMode, data, toasts, removeToast, backgroundModalOpen, setBackgroundModalOpen, settingsModalOpen, closeSettingsModal, addToast, toggleSidebar, addPage, setActivePage, openSettingsModal, toggleBlurMode } = useStore();
+  const { initialize, isLoading, activeSidebar, activePageId, blurMode, dragMode, data, backgroundModalOpen, setBackgroundModalOpen, settingsModalOpen, closeSettingsModal, addToast, toggleSidebar, addPage, setActivePage, openSettingsModal, toggleBlurMode } = useStore();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAddPageOpen, setIsAddPageOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -120,9 +128,11 @@ export default function App() {
   const prefersDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   const layoutMode = data?.settings?.themeMode ?? 'discord';
   const isNeoBrutalistMode = layoutMode === 'neobrutalist';
+  const isNeumorphismMode = layoutMode === 'neumorphism';
   const isDark = !isNeoBrutalistMode && prefersDark;
-  const isSimpleMode = layoutMode !== 'discord';
-  const defaultColor = isNeoBrutalistMode ? '#ffffff' : prefersDark ? '#000000' : '#ffffff';
+  const isNeumorphismDark = isNeumorphismMode && isDark;
+  const isSimpleMode = layoutMode === 'simple';
+  const defaultColor = isNeumorphismDark ? '#1b1f27' : isNeumorphismMode ? '#e8ecf3' : isNeoBrutalistMode ? '#ffffff' : prefersDark ? '#000000' : '#ffffff';
 
   const bgStyle: CSSProperties = bg
     ? bg.type === 'image'
@@ -149,13 +159,15 @@ export default function App() {
         style={bgStyle}
       />
 
-      {isSimpleMode && !isNeoBrutalistMode && (
+      {(isSimpleMode || isNeumorphismMode) && !isNeoBrutalistMode && (
         <button
           type="button"
           onClick={() => setBackgroundModalOpen(true)}
           className={`fixed bottom-4 right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full border transition-colors ${
             isNeoBrutalistMode
               ? 'border-2 border-black bg-white text-black shadow-[4px_4px_0_#000] hover:bg-zinc-100'
+              : isNeumorphismMode
+                ? `${isNeumorphismDark ? 'border-transparent bg-[#1b1f27] text-zinc-100' : 'border-transparent bg-[#e8ecf3] text-slate-700'} shadow-[8px_8px_18px_rgba(163,177,198,0.35),-8px_-8px_18px_rgba(255,255,255,0.9)] hover:shadow-[inset_5px_5px_10px_rgba(0,0,0,0.75),inset_-5px_-5px_10px_rgba(0,0,0,0.35)]`
               : isDark
                 ? 'border-white/10 bg-zinc-950/70 text-zinc-100 hover:bg-zinc-900'
                 : 'border-zinc-200 bg-white/90 text-zinc-700 hover:bg-zinc-50'
@@ -168,31 +180,41 @@ export default function App() {
       )}
       
       {/* Sidebar - Made glassy */}
-      {!isSimpleMode && activeSidebar && (
-        <div className={`z-10 backdrop-blur-md border-r ${isNeoBrutalistMode ? 'bg-white border-black' : isDark ? 'bg-zinc-950/40 border-white/5' : 'bg-white/85 border-zinc-200 shadow-[0_10px_35px_rgba(0,0,0,0.06)]'}`}>
+      {layoutMode === 'discord' && activeSidebar && (
+        <div className={`z-10 border-r ${isNeoBrutalistMode ? 'bg-white border-black' : isDark ? 'bg-zinc-950/40 border-white/5 backdrop-blur-md' : 'bg-white/85 border-zinc-200 shadow-[0_10px_35px_rgba(0,0,0,0.06)]'}`}>
           <Sidebar />
         </div>
       )}
       
       {/* Main Content Area */}
-      <div className="flex flex-col flex-1 relative min-w-0 z-10">
+      <div className={`flex flex-col flex-1 relative min-w-0 z-10 ${isNeumorphismMode ? (isNeumorphismDark ? 'bg-[#1b1f27] text-zinc-100' : 'bg-[#e8ecf3] text-slate-800') : ''}`}>
         <Toolbar onOpenSearch={() => setIsSearchOpen(true)} onAddPage={() => setIsAddPageOpen(true)} layoutMode={layoutMode} />
-        <main className={`flex-1 overflow-x-auto overflow-y-auto relative no-scrollbar ${isNeoBrutalistMode ? 'bg-white text-black' : isDark ? '' : 'bg-white/35'}`}>
+        <main className={`flex-1 overflow-x-auto overflow-y-auto relative no-scrollbar ${isNeoBrutalistMode ? 'bg-white text-black' : isNeumorphismMode ? (isNeumorphismDark ? 'bg-[#1b1f27] text-zinc-100' : 'bg-[#e8ecf3] text-slate-800') : isDark ? '' : 'bg-white/35'}`}>
           <PageView />
         </main>
       </div>
 
-      {/* Toasts */}
-      <div className="fixed top-6 right-6 z-50 flex flex-col items-end gap-3">
-        {toasts.map(t => (
-          <div key={t.id} className={`min-w-55 max-w-sm rounded-md px-4 py-2 shadow-lg ${t.type === 'success' ? 'bg-emerald-600 text-white' : t.type === 'error' ? 'bg-rose-600 text-white' : 'bg-zinc-800 text-zinc-100'}`}>
-            <div className="flex items-center justify-between gap-2">
-              <div className="text-sm">{t.message}</div>
-              <button onClick={() => removeToast(t.id)} className="text-xs opacity-70">✕</button>
-            </div>
-          </div>
-        ))}
-      </div>
+      <Toaster
+        theme="system"
+        position="top-right"
+        richColors
+        closeButton
+        className="toaster group"
+        style={{ fontFamily: 'var(--font-sans)' }}
+        icons={{
+          success: <CircleCheckIcon className="h-4 w-4" />,
+          info: <InfoIcon className="h-4 w-4" />,
+          warning: <TriangleAlertIcon className="h-4 w-4" />,
+          error: <OctagonXIcon className="h-4 w-4" />,
+          loading: <Loader2Icon className="h-4 w-4 animate-spin" />,
+        }}
+        toastOptions={{
+          duration: 4000,
+          classNames: {
+            toast: 'cn-toast',
+          },
+        }}
+      />
 
       {/* Background modal (rendered at root so it's centered) */}
       <BackgroundModal isOpen={backgroundModalOpen} onClose={() => setBackgroundModalOpen(false)} />

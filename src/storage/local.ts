@@ -1,6 +1,11 @@
 import { BookmrkData } from '../shared/types';
 
 const STORAGE_KEY = 'bookmrk_data';
+const UI_STATE_KEY = 'bookmrk_ui_state';
+
+type BookmrkUiState = {
+  blurMode?: boolean;
+};
 
 export const isExtensionEnvironment = () => {
   return typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local;
@@ -33,6 +38,32 @@ export class StorageAdapter {
     }
   }
 
+  static async loadUIState(): Promise<BookmrkUiState | null> {
+    if (isExtensionEnvironment()) {
+      return new Promise((resolve) => {
+        chrome.storage.local.get([UI_STATE_KEY], (result) => {
+          resolve(result[UI_STATE_KEY] || null);
+        });
+      });
+    }
+
+    const data = localStorage.getItem(UI_STATE_KEY);
+    return data ? JSON.parse(data) : null;
+  }
+
+  static async saveUIState(state: BookmrkUiState): Promise<void> {
+    if (isExtensionEnvironment()) {
+      return new Promise((resolve) => {
+        chrome.storage.local.set({ [UI_STATE_KEY]: state }, () => {
+          resolve();
+        });
+      });
+    }
+
+    localStorage.setItem(UI_STATE_KEY, JSON.stringify(state));
+    return Promise.resolve();
+  }
+
   static exportJSON(data: BookmrkData) {
     // Export everything except background settings.
     const { background, ...exportData } = data;
@@ -51,8 +82,8 @@ export class StorageAdapter {
           themeMode: {
             enabled: data.settings?.themeMode ?? 'discord',
             label: 'Theme mode',
-            description: 'Switch between Discord, Simple Mode, and NeoBrutalist layouts',
-            details: 'Discord keeps the current denser shell, Simple Mode uses a lighter top-tab layout, and NeoBrutalist uses a white-and-black high-contrast shell.'
+            description: 'Switch between Discord, Simple Mode, NeoBrutalist, and Neumorphism layouts',
+            details: 'Discord keeps the current denser shell, Simple Mode uses a lighter top-tab layout, NeoBrutalist uses a white-and-black high-contrast shell, and Neumorphism uses a soft pressed-in surface style.'
           }
         },
         behavior: {

@@ -47,12 +47,11 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   }, [isOpen, onClose]);
 
   useEffect(() => {
+    if (!isOpen) return;
     if (!isInitialized.current) {
       isInitialized.current = true;
-      return;
     }
-    updateSettings(settings);
-  }, [settings, updateSettings]);
+  }, [isOpen]);
 
   const [confirmDeletePage, setConfirmDeletePage] = useState(false);
 
@@ -106,6 +105,16 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       // For other toggles, just toggle normally
       const newSettings = { ...settings, [key]: !settings[key] };
       setSettings(newSettings);
+    }
+  };
+
+  const handleSaveSettings = () => {
+    try {
+      updateSettings(settings);
+      addToast('Settings saved', 'success');
+    } catch (error) {
+      console.error('Failed to save settings', error);
+      addToast('Failed to save settings', 'error');
     }
   };
 
@@ -348,7 +357,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 </section>
               </div>
             )}
-
             {activeTab === 'account' && (
               <div className={`py-8 text-center ${isNeoBrutalistMode ? 'text-black' : isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
                 <p className="text-sm">Account settings coming soon</p>
@@ -387,6 +395,19 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 )}
               </section>
             )}
+          </div>
+
+          <div className={`flex items-center justify-between gap-3 border-t px-6 py-4 ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
+            <p className={`text-xs ${isNeoBrutalistMode ? 'text-black/70' : isDark ? 'text-zinc-500' : 'text-zinc-500'}`}>
+              Changes are saved only when you click Save.
+            </p>
+            <button
+              type="button"
+              onClick={handleSaveSettings}
+              className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${isNeoBrutalistMode ? 'border-2 border-black bg-black text-white shadow-[2px_2px_0_#000] hover:bg-zinc-900' : isDark ? 'bg-zinc-100 text-zinc-900 hover:bg-zinc-200' : 'bg-zinc-900 text-zinc-100 hover:bg-zinc-800'}`}
+            >
+              Save Settings
+            </button>
           </div>
 
 
