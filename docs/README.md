@@ -4,14 +4,6 @@
 
 > ### Bookmrk is a lightweight, open-source bookmark manager built with React, TypeScript, Vite and Tailwind CSS. It is designed as a modern local-first bookmark manager with quick-save keyboard shortcuts, multi-board organization, a canvas-style 4-column board layout, Chrome import fallback, flexible backgrounds and a bunch of themes.
 
-[![The Website for this chrome extension is Powered by DigitalPlat FreeDomain Get a free domain from DigitalPlat.](https://img.shields.io/badge/DigitalPlat-Get%20a%20free%20domain%20from%20DigitalPlat.-111827?style=flat-square&logo=databricks&logoColor=93c5fd)](https://dash.domain.digitalplat.org/signup?ref=rQsyzyJRMl)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/sarvan-2187/Bookmrk/total?style=flat-square)
-![GitHub License](https://img.shields.io/github/license/sarvan-2187/Bookmrk?style=flat-square)
-![GitHub Repo stars](https://img.shields.io/github/stars/sarvan-2187/Bookmrk?style=flat-square&label=Stars)
-
-
-
-
 This README is intended to be a comprehensive reference for users and contributors: installation, usage, architecture, data model, storage & migration, development and contribution guidelines, troubleshooting, and FAQs.
 
 
@@ -227,16 +219,7 @@ Bookmrk provides three built-in visual themes (selectable from the Palette menu 
 
 <br/>
 
-Additionally, a new **Neumorphism** theme is available which uses soft, extruded shadows and subtle inset highlights to create a tactile, 'soft UI' appearance. It emphasizes smooth rounded card surfaces and gentle inner/outer shadows — great for a modern, minimal aesthetic.
-
-Theme list (selectable from the Palette menu or via Appearance settings):
-
-- **Discord** (default): a dense, compact shell inspired by the Discord UI.
-- **Simple**: a cleaner top-tab layout with reduced chrome and clearer spacing.
-- **NeoBrutalist**: high-contrast white-and-black styling with stronger borders and blocky shadows.
-- **Neumorphism**: soft shadows, rounded cards, and inset highlights for a tactile UI.
-
-These theme choices are persisted in the stored settings as `themeMode` with allowed values `discord`, `simple`, `neobrutalist`, or `neumorphism` (see `src/shared/types.ts`).
+These theme choices are persisted in the stored settings as `themeMode` with allowed values `discord`, `simple`, or `neobrutalist` (see `src/shared/types.ts`).
 
 ## Architecture & Code Structure
 
@@ -414,5 +397,3 @@ A: The bookmark card itself now opens the URL when clicked, so the separate open
 This project is open source under MIT License.
 
 For questions, issues, or contributions, open an issue or pull request in the repository.
-
-The Domain `https://bookmrk.dpdns.org` has been powered by DigitalPlat Domains.
