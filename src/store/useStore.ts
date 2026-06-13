@@ -48,7 +48,7 @@ interface AppState {
   deleteBoard: (pageId: string, boardId: string) => void;
   moveBoardToColumn: (pageId: string, boardId: string, columnIndex: number, insertIndex?: number) => void;
 
-  addBookmark: (pageId: string, boardId: string, url: string, title: string, description?: string) => void;
+  addBookmark: (pageId: string, boardId: string, url: string, title: string, description?: string) => Promise<void>;
   updateBookmark: (pageId: string, boardId: string, bookmarkId: string, title: string, url: string, description?: string, favicon?: string | null) => void;
   deleteBookmark: (pageId: string, boardId: string, bookmarkId: string) => void;
   moveBookmark: (
@@ -145,6 +145,35 @@ function getChromeFaviconUrl(bookmarkUrl: string): string {
   } catch {
     return `https://www.google.com/s2/favicons?domain=${bookmarkUrl}&sz=64`;
   }
+}
+
+async function fetchBookmarkDescription(bookmarkUrl: string): Promise<string | undefined> {
+  try {
+    const resolvedUrl = new URL(bookmarkUrl.startsWith('http') ? bookmarkUrl : `https://${bookmarkUrl}`).toString();
+    const response = await fetch(resolvedUrl, {
+      method: 'GET',
+      redirect: 'follow',
+    });
+
+    if (!response.ok) return undefined;
+
+    const html = await response.text();
+    const metaPatterns = [
+      /<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["'][^>]*>/i,
+      /<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["'][^>]*>/i,
+      /<meta[^>]+name=["']twitter:description["'][^>]+content=["']([^"']+)["'][^>]*>/i,
+    ];
+
+    for (const pattern of metaPatterns) {
+      const match = html.match(pattern);
+      const value = match?.[1]?.trim();
+      if (value) return value.slice(0, 280);
+    }
+  } catch {
+    return undefined;
+  }
+
+  return undefined;
 }
 
 const BOARD_COLUMN_COUNT = 4;
@@ -298,7 +327,11 @@ export const useStore = create<AppState>((set, get) => ({
     await StorageAdapter.saveUIState({ blurMode: on });
   },
   toggleSidebar: () => set((state) => ({ activeSidebar: !state.activeSidebar })),
-  toggleDragMode: () => set((state) => ({ dragMode: !state.dragMode })),
+  toggleDragMode: () => {
+    const nextDragMode = !get().dragMode;
+    set({ dragMode: nextDragMode });
+    toast(nextDragMode ? 'Drag Mode is on' : 'Drag Mode is off');
+  },
   openQuickSave: () => set({ quickSaveOpen: true }),
   closeQuickSave: () => set({ quickSaveOpen: false }),
   openSettingsModal: () => set({ settingsModalOpen: true }),
@@ -542,19 +575,21 @@ export const useStore = create<AppState>((set, get) => ({
     StorageAdapter.save(newData);
   },
 
-  addBookmark: (pageId, boardId, url, title, description) => {
+  addBookmark: async (pageId, boardId, url, title, description) => {
     const { data } = get();
     if (!data) return;
 
     const newUrl = new URL(url.startsWith('http') ? url : `https://${url}`);
     const favicon = `https://www.google.com/s2/favicons?domain=${newUrl.hostname}&sz=64`;
+    const autoDescription = description?.trim() || (await fetchBookmarkDescription(newUrl.toString()));
+    const finalDescription = autoDescription?.trim() || undefined;
 
     const newBookmark: Bookmark = {
       id: generateId(),
       url: newUrl.toString(),
       title: title || newUrl.hostname,
-      description: description?.trim() || undefined,
-      note: description?.trim() || undefined,
+      description: finalDescription,
+      note: finalDescription,
       favicon,
       addedAt: Date.now()
     };

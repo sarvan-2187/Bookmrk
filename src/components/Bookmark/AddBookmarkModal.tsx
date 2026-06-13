@@ -7,13 +7,14 @@ type AddBookmarkModalProps = {
   isOpen: boolean;
   boardName: string;
   onClose: () => void;
-  onSave: (url: string, title: string) => void;
+  onSave: (url: string, title: string) => Promise<void> | void;
 };
 
 export function AddBookmarkModal({ isOpen, boardName, onClose, onSave }: AddBookmarkModalProps) {
   const { data } = useStore();
   const [url, setUrl] = useState('');
   const [title, setTitle] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   const bgIsImage = data?.background?.type === 'image';
   const isNeoBrutalistMode = isNeoBrutalistTheme(data);
@@ -35,19 +36,25 @@ export function AddBookmarkModal({ isOpen, boardName, onClose, onSave }: AddBook
     if (!isOpen) {
       setUrl('');
       setTitle('');
+      setIsSaving(false);
     }
   }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (!url.trim()) return;
 
-    onSave(url.trim(), title.trim());
-    onClose();
-    setUrl('');
-    setTitle('');
+    try {
+      setIsSaving(true);
+      await onSave(url.trim(), title.trim());
+      onClose();
+      setUrl('');
+      setTitle('');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return createPortal(
@@ -66,6 +73,11 @@ export function AddBookmarkModal({ isOpen, boardName, onClose, onSave }: AddBook
         <div className={`border-b px-5 py-4 ${isNeoBrutalistMode ? 'border-black' : isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
           <h3 className={`text-lg font-semibold ${isNeoBrutalistMode ? 'text-black' : isDark ? 'text-zinc-100' : 'text-zinc-900'}`}>Add Bookmark</h3>
           <p className={`mt-1 text-sm ${isNeoBrutalistMode ? 'text-black/70' : isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>Save a new bookmark into {boardName}</p>
+          {isSaving && (
+            <p className={`mt-2 text-xs ${isNeoBrutalistMode ? 'text-black/60' : isDark ? 'text-zinc-500' : 'text-zinc-500'}`}>
+              Fetching description and saving bookmark...
+            </p>
+          )}
         </div>
         <form onSubmit={handleSubmit} className="space-y-4 px-5 py-5">
           <div>
@@ -76,6 +88,7 @@ export function AddBookmarkModal({ isOpen, boardName, onClose, onSave }: AddBook
               value={url}
               onChange={(event) => setUrl(event.target.value)}
               placeholder="https://example.com"
+              disabled={isSaving}
               className={`w-full rounded-md border px-3 py-2 outline-none focus:ring-1 ${isNeoBrutalistMode ? 'border-2 border-black bg-white text-black placeholder:text-black/40 shadow-[2px_2px_0_#000] focus:border-black focus:ring-black' : isDark ? 'border-zinc-800 bg-zinc-900 text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-600 focus:ring-zinc-600' : 'border-zinc-300 bg-white text-zinc-900 placeholder:text-zinc-500 focus:border-zinc-400 focus:ring-zinc-400'}`}
             />
           </div>
@@ -87,6 +100,7 @@ export function AddBookmarkModal({ isOpen, boardName, onClose, onSave }: AddBook
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               placeholder="Example Website"
+              disabled={isSaving}
               className={`w-full rounded-md border px-3 py-2 outline-none focus:ring-1 ${isNeoBrutalistMode ? 'border-2 border-black bg-white text-black placeholder:text-black/40 shadow-[2px_2px_0_#000] focus:border-black focus:ring-black' : isDark ? 'border-zinc-800 bg-zinc-900 text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-600 focus:ring-zinc-600' : 'border-zinc-300 bg-white text-zinc-900 placeholder:text-zinc-500 focus:border-zinc-400 focus:ring-zinc-400'}`}
             />
           </div>
@@ -95,15 +109,17 @@ export function AddBookmarkModal({ isOpen, boardName, onClose, onSave }: AddBook
             <button
               type="button"
               onClick={onClose}
+              disabled={isSaving}
               className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${isNeoBrutalistMode ? 'border-2 border-black bg-white text-black shadow-[2px_2px_0_#000] hover:bg-zinc-100' : isDark ? 'text-zinc-400 hover:text-zinc-200' : 'text-zinc-600 hover:text-zinc-900'}`}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${isNeoBrutalistMode ? 'border-2 border-black bg-black text-white shadow-[2px_2px_0_#000] hover:bg-zinc-900' : isDark ? 'bg-zinc-100 text-zinc-900 hover:bg-zinc-200' : 'bg-zinc-900 text-zinc-100 hover:bg-zinc-800'}`}
+              disabled={isSaving}
+              className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${isSaving ? 'cursor-wait opacity-70' : ''} ${isNeoBrutalistMode ? 'border-2 border-black bg-black text-white shadow-[2px_2px_0_#000] hover:bg-zinc-900' : isDark ? 'bg-zinc-100 text-zinc-900 hover:bg-zinc-200' : 'bg-zinc-900 text-zinc-100 hover:bg-zinc-800'}`}
             >
-              Save Bookmark
+              {isSaving ? 'Saving...' : 'Save Bookmark'}
             </button>
           </div>
         </form>

@@ -12,6 +12,17 @@ type SettingsModalProps = {
 
 type Tab = 'general' | 'account' | 'support';
 
+const FONT_OPTIONS: Array<{ value: NonNullable<SettingsType['fontFamily']>; label: string; preview: string }> = [
+  { value: 'plus-jakarta-sans', label: 'Plus Jakarta Sans', preview: 'Default clean UI font' },
+  { value: 'satoshi', label: 'Satoshi', preview: 'Modern geometric sans' },
+  { value: 'google-sans', label: 'Google Sans', preview: 'Product-style rounded sans' },
+  { value: 'electrolize', label: 'Electrolize', preview: 'Technical sci-fi sans' },
+  { value: 'space-grotesk', label: 'Space Grotesk', preview: 'Clean modern grotesk' },
+  { value: 'comic-sans', label: 'Comic Sans', preview: 'Playful casual classic' },
+  { value: 'dm-mono', label: 'DM Mono', preview: 'Readable monospaced font' },
+  { value: 'jetbrains-mono', label: 'JetBrains Mono', preview: 'Developer-friendly mono' },
+];
+
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const { data, updateSettings, addToast, activePageId, deletePage, dragMode } = useStore();
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -106,6 +117,10 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       const newSettings = { ...settings, [key]: !settings[key] };
       setSettings(newSettings);
     }
+  };
+
+  const handleFontChange = (fontFamily: NonNullable<SettingsType['fontFamily']>) => {
+    setSettings({ ...settings, fontFamily });
   };
 
   const handleSaveSettings = () => {
@@ -269,6 +284,35 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                       <p className={`text-xs ${isNeoBrutalistMode ? 'text-black/70' : isDark ? 'text-blue-300' : 'text-blue-700'}`}>
                         Compact mode hides descriptions and reduces size to accommodate more bookmarks per board.
                       </p>
+                    </div>
+
+                    <div className="pt-2">
+                      <div className="mb-2 flex items-center justify-between gap-3">
+                        <div>
+                          <div className={`text-sm font-medium ${isNeoBrutalistMode ? 'text-black' : isDark ? 'text-zinc-100' : 'text-zinc-900'}`}>Font family</div>
+                          <div className={`text-xs ${isNeoBrutalistMode ? 'text-black/70' : isDark ? 'text-zinc-500' : 'text-zinc-600'}`}>Choose the UI typeface for the app</div>
+                        </div>
+                        <span className={`rounded-full px-2 py-1 text-[11px] font-medium ${isNeoBrutalistMode ? 'border-2 border-black text-black' : isDark ? 'bg-zinc-800 text-zinc-300' : 'bg-zinc-100 text-zinc-600'}`}>
+                          {FONT_OPTIONS.find((option) => option.value === (settings.fontFamily ?? 'plus-jakarta-sans'))?.label}
+                        </span>
+                      </div>
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        {FONT_OPTIONS.map((option) => {
+                          const selected = (settings.fontFamily ?? 'plus-jakarta-sans') === option.value;
+                          return (
+                            <button
+                              key={option.value}
+                              type="button"
+                              onClick={() => handleFontChange(option.value)}
+                              className={`rounded-lg border px-3 py-3 text-left transition-colors ${selected ? (isNeoBrutalistMode ? 'border-2 border-black bg-black text-white shadow-[2px_2px_0_#000]' : isDark ? 'border-zinc-500 bg-zinc-800 text-zinc-100' : 'border-zinc-400 bg-zinc-100 text-zinc-900') : (isNeoBrutalistMode ? 'border-black bg-white text-black hover:bg-zinc-100' : isDark ? 'border-zinc-800 bg-zinc-950/50 text-zinc-300 hover:bg-zinc-900' : 'border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50')}`}
+                              style={{ fontFamily: `var(--font-${option.value})` }}
+                            >
+                              <div className="text-sm font-medium">{option.label}</div>
+                              <div className={`mt-1 text-xs ${selected ? (isNeoBrutalistMode ? 'text-white/75' : isDark ? 'text-zinc-300' : 'text-zinc-600') : (isNeoBrutalistMode ? 'text-black/70' : isDark ? 'text-zinc-500' : 'text-zinc-500')}`}>{option.preview}</div>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
                 </section>

@@ -56,8 +56,8 @@ Key design goals:
 - Bookmark cards: click the card itself to open the URL, with settings and delete actions available from the card menu.
 - Page actions: rename and delete (with safe-guards preventing deleting the last page).
 - Settings: configurable behavior and appearance options including:
-  - **Behavior**: Open links in new tab, show/hide bookmark descriptions
-  - **Appearance**: Compact mode for condensed card display
+- **Behavior**: Open links in new tab, show/hide bookmark descriptions
+- **Appearance**: Compact mode for condensed card display, plus a font picker with multiple UI fonts
   - **Support**: Help form with optional contact information (powered by NTFY.sh)
 - Chrome integration: optional import of Chrome bookmarks when running as an extension; a flag prevents repeated imports.
 - Export/Import JSON: export user data with settings metadata (background stripped by default for safe portability), import JSON to restore data.
@@ -159,6 +159,7 @@ Access settings via the settings icon in the toolbar. Settings are auto-saved as
 
 **Appearance Settings:**
 - **Compact mode**: Reduces spacing and card size to show more bookmarks per board. Hides descriptions and shrinks icons and text. Automatically disables "Show bookmark descriptions" (default: off).
+- **Font family**: Switch the UI font across the app from the General settings tab. Available fonts include Plus Jakarta Sans (default), Satoshi, Google Sans, Electrolize, Space Grotesk, Comic Sans, DM Mono, and JetBrains Mono.
 
 **Support:**
 - Help contact form powered by NTFY.sh. Submit your email and message to reach the development team.
@@ -182,7 +183,7 @@ Core TypeScript types are defined in `src/shared/types.ts`. The important shapes
 - `Bookmark` - { id, url, title, notes?, createdAt }
 - `Board` - { id, name, order, columnIndex?, bookmarks: Bookmark[] }
 - `Page` - { id, name, boards: Board[] }
-- `Settings` - { openLinksInNewTab?: boolean, showBookmarkDescriptions?: boolean, compactMode?: boolean }
+- `Settings` - { openLinksInNewTab?: boolean, showBookmarkDescriptions?: boolean, compactMode?: boolean, themeMode?: 'discord' | 'simple' | 'neobrutalist' | 'neumorphism', fontFamily?: 'plus-jakarta-sans' | 'satoshi' | 'google-sans' | 'electrolize' | 'dm-mono' | 'jetbrains-mono' | 'comic-sans' | 'space-grotesk' }
 - `BookmrkData` - { pages: Page[], settings: Settings, meta: { createdAt }, chromeBookmarksImported?: boolean, background?: Background | null }
 
 Background types:
@@ -246,7 +247,7 @@ Top-level structure (important files/directories):
 - `src/storage/local.ts` — Persistence adapter (chrome.storage.local when available, otherwise localStorage). Handles export/import operations with settings metadata in exports.
 - `src/shared/types.ts` — Central TypeScript types including Settings and getModalBackgroundStyle utility.
 - `src/components/` — UI components and modal implementations:
-  - `Settings/SettingsModal.tsx` — settings manager with tabs for General (behavior/appearance), Account, and Support sections. Auto-saves changes with toggle switches.
+  - `Settings/SettingsModal.tsx` — settings manager with tabs for General (behavior/appearance/font picker), Account, and Support sections. Auto-saves changes with toggle switches.
   - `Background/BackgroundModal.tsx` — background manager (URL/upload).
   - `Shared/InputModal.tsx` — reusable input modal.
   - `Bookmark/QuickSaveModal.tsx` — Quick Save keyboard handler and UX.

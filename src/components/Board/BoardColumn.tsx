@@ -223,7 +223,9 @@ export function BoardColumn({ board, pageId, isOverlay }: BoardColumnProps) {
         isOpen={isAddBookmarkOpen}
         boardName={board.name}
         onClose={() => setIsAddBookmarkOpen(false)}
-        onSave={(url, title) => addBookmark(pageId, board.id, url, title)}
+        onSave={async (url, title) => {
+          await addBookmark(pageId, board.id, url, title);
+        }}
       />
 
       <BoardSettingsModal

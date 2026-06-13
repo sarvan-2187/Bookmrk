@@ -115,6 +115,11 @@ export default function App() {
     setShowOnboarding(!hasSeenOnboarding);
   }, [isLoading]);
 
+  useEffect(() => {
+    const fontFamily = data?.settings?.fontFamily ?? 'plus-jakarta-sans';
+    document.documentElement.setAttribute('data-font-family', fontFamily);
+  }, [data?.settings?.fontFamily]);
+
   const closeOnboarding = () => {
     window.localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
     setShowOnboarding(false);

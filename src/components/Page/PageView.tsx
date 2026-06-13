@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   DndContext, 
-  closestCenter,
+  pointerWithin,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -45,25 +45,19 @@ function CanvasLane({ columnIndex, isFirstColumn, isLastColumn, isDark, isNeumor
   });
 
   const isEdgeColumn = isFirstColumn || isLastColumn;
-  const laneFrameClass = isEdgeColumn ? 'border-0 shadow-none' : 'border';
-  const laneThemeClass = isNeumorphismMode
-    ? (isNeumorphismDark
-      ? 'bg-[#1b1f27] shadow-[inset_10px_10px_24px_rgba(0,0,0,0.8),inset_-10px_-10px_24px_rgba(0,0,0,0.35)]'
-      : 'bg-[#e8ecf3] shadow-[inset_10px_10px_24px_rgba(163,177,198,0.45),inset_-10px_-10px_24px_rgba(255,255,255,0.95)]')
-    : isDark
-      ? 'bg-zinc-950/10 border-white/8'
-      : 'bg-white/20 border-zinc-200/0';
+  const laneFrameClass = 'border-0 shadow-none';
+  const laneThemeClass = 'bg-transparent';
 
   return (
     <div
       ref={setNodeRef}
-      className={`group min-h-[calc(100vh-10rem)] rounded-3xl ${laneFrameClass} ${laneThemeClass} p-2 transition-all ${isNeoBrutalistMode ? 'bg-white border-black' : ''} ${isOver ? (isNeoBrutalistMode ? 'shadow-[inset_0_0_0_2px_#000]' : isNeumorphismMode ? (isNeumorphismDark ? 'shadow-[inset_10px_10px_24px_rgba(0,0,0,0.85),inset_-10px_-10px_24px_rgba(0,0,0,0.45)]' : 'shadow-[inset_10px_10px_24px_rgba(163,177,198,0.55),inset_-10px_-10px_24px_rgba(255,255,255,0.95)]') : isDark ? 'border-white/15 bg-white/5' : 'border-zinc-300/20 bg-zinc-100/10') : ''}`}
+      className={`group min-h-[calc(100vh-10rem)] rounded-3xl ${laneFrameClass} ${laneThemeClass} p-2 transition-all ${isNeoBrutalistMode ? 'bg-transparent' : ''} ${isOver ? (isNeoBrutalistMode ? 'shadow-[inset_0_0_0_2px_#000]' : isNeumorphismMode ? (isNeumorphismDark ? 'shadow-[inset_10px_10px_24px_rgba(0,0,0,0.85),inset_-10px_-10px_24px_rgba(0,0,0,0.45)]' : 'shadow-[inset_10px_10px_24px_rgba(163,177,198,0.55),inset_-10px_-10px_24px_rgba(255,255,255,0.95)]') : isDark ? 'shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]' : 'shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]') : ''}`}
     >
       {children}
       <button
         type="button"
         onClick={() => onAddBoard(columnIndex)}
-        className={`mt-3 flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-4 text-sm font-semibold transition-all duration-200 ${isNeoBrutalistMode ? 'border-black text-black bg-white shadow-[2px_2px_0_#000]' : isNeumorphismMode ? (isNeumorphismDark ? 'border-transparent text-zinc-100 bg-[#1b1f27] shadow-[6px_6px_12px_rgba(0,0,0,0.75),-6px_-6px_12px_rgba(0,0,0,0.35)]' : 'border-transparent text-slate-700 bg-[#e8ecf3] shadow-[6px_6px_12px_rgba(163,177,198,0.45),-6px_-6px_12px_rgba(255,255,255,0.95)]') : isDark ? 'border-white/10 text-zinc-300 bg-white/5' : 'border-zinc-200 text-zinc-700 bg-white/70'} opacity-0 pointer-events-none translate-y-1 group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 ${isNeoBrutalistMode ? 'group-hover:bg-white' : isNeumorphismMode ? (isNeumorphismDark ? 'group-hover:shadow-[inset_5px_5px_10px_rgba(0,0,0,0.8),inset_-5px_-5px_10px_rgba(0,0,0,0.45)]' : 'group-hover:shadow-[inset_5px_5px_10px_rgba(163,177,198,0.55),inset_-5px_-5px_10px_rgba(255,255,255,0.95)]') : isDark ? 'group-hover:border-white/20 group-hover:bg-white/5' : 'group-hover:border-zinc-300 group-hover:bg-zinc-100'}`}
+        className={`mt-3 flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-4 text-sm font-semibold transition-all duration-200 ${isNeoBrutalistMode ? 'border-black text-black bg-white shadow-[2px_2px_0_#000]' : isNeumorphismMode ? (isNeumorphismDark ? 'border-transparent text-zinc-100 bg-[#1b1f27] shadow-[6px_6px_12px_rgba(0,0,0,0.75),-6px_-6px_12px_rgba(0,0,0,0.35)]' : 'border-transparent text-slate-700 bg-[#e8ecf3] shadow-[6px_6px_12px_rgba(163,177,198,0.45),-6px_-6px_12px_rgba(255,255,255,0.95)]') : isDark ? 'border-white/10 text-zinc-300 bg-white/5' : 'border-zinc-200 text-zinc-700 bg-white/70'} opacity-0 pointer-events-none translate-y-1 group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 ${isNeoBrutalistMode ? 'group-hover:bg-white' : isNeumorphismMode ? (isNeumorphismDark ? 'group-hover:shadow-[inset_5px_5px_10px_rgba(0,0,0,0.8),inset_-5px_-5px_10px_rgba(0,0,0,0.45)]' : 'group-hover:shadow-[inset_5px_5px_10px_rgba(163,177,198,0.55),inset_-5px_-5px_10px_rgba(255,255,255,0.95)]') : isDark ? 'group-hover:bg-white/5' : 'group-hover:bg-zinc-100'}`}
       >
         <Plus className="h-4 w-4" />
         <span>Add Board</span>
@@ -87,7 +81,7 @@ export function PageView() {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 5,
+        distance: 2,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -226,7 +220,7 @@ export function PageView() {
   return (
     <DndContext 
       sensors={sensors}
-      collisionDetection={closestCenter}
+      collisionDetection={pointerWithin}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}

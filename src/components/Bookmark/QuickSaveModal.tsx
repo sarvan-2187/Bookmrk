@@ -60,7 +60,7 @@ export function QuickSaveModal() {
     }
 
     if (targetPageId) {
-      addBookmark(targetPageId, boardId, url, title);
+      void addBookmark(targetPageId, boardId, url, title);
     }
     
     closeQuickSave();

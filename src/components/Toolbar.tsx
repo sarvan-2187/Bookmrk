@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { EyeOff, PanelLeft, Plus, Search, Move, Settings, Palette, Check, BookmarkPlus } from 'lucide-react';
 import { useStore } from '../store/useStore';
+import { PageSettingsModal } from './Page/PageSettingsModal';
 
 type ToolbarProps = {
   onOpenSearch: () => void;
@@ -9,7 +10,7 @@ type ToolbarProps = {
 };
 
 export function Toolbar({ onOpenSearch, onAddPage, layoutMode = 'discord' }: ToolbarProps) {
-  const { toggleSidebar, toggleBlurMode, toggleDragMode, data, activePageId, setActivePage, openQuickSave, openSettingsModal, dragMode, addToast, updateSettings, importChromeBookmarks } = useStore();
+  const { toggleSidebar, toggleBlurMode, toggleDragMode, data, activePageId, setActivePage, openQuickSave, openSettingsModal, dragMode, addToast, updateSettings, importChromeBookmarks, updatePage, deletePage, setPageVisibleBookmarks } = useStore();
   const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   const isNeoBrutalistMode = layoutMode === 'neobrutalist';
   const isNeumorphismMode = layoutMode === 'neumorphism';
@@ -18,8 +19,10 @@ export function Toolbar({ onOpenSearch, onAddPage, layoutMode = 'discord' }: Too
   const isChromeImportBlocked = Boolean(data?.chromeBookmarksImported || data?.pages.some((page) => page.boards.some((board) => board.name === 'Imported Bookmarks')));
   const [themeMenuOpen, setThemeMenuOpen] = useState(false);
   const themeMenuRef = useRef<HTMLDivElement | null>(null);
+  const [settingsPageId, setSettingsPageId] = useState<string | null>(null);
 
   const activePage = data?.pages.find((page) => page.id === activePageId);
+  const settingsPage = data?.pages.find((page) => page.id === settingsPageId) || null;
   const themeMode = data?.settings?.themeMode ?? 'discord';
 
   const blockIfDragMode = () => {
@@ -77,6 +80,45 @@ export function Toolbar({ onOpenSearch, onAddPage, layoutMode = 'discord' }: Too
     setThemeMenuOpen(false);
   };
 
+  const handleDeletePage = () => {
+    if (!settingsPage || !data) return;
+
+    if (data.pages.length <= 1) {
+      addToast('Cannot delete the last remaining page', 'error');
+      return;
+    }
+
+    try {
+      deletePage(settingsPage.id);
+      addToast(`Deleted page "${settingsPage.name}"`, 'success');
+      setSettingsPageId(null);
+    } catch {
+      addToast('Failed to delete page', 'error');
+    }
+  };
+
+  const handleSavePageName = (nextName: string) => {
+    if (!settingsPage) return;
+
+    const trimmed = nextName.trim();
+    if (!trimmed) {
+      addToast('Page name cannot be empty', 'error');
+      return;
+    }
+
+    if (trimmed === settingsPage.name) {
+      addToast('Page name is unchanged', 'info');
+      return;
+    }
+
+    try {
+      updatePage(settingsPage.id, trimmed);
+      addToast(`Page renamed to "${trimmed}"`, 'success');
+    } catch {
+      addToast('Failed to update page name', 'error');
+    }
+  };
+
   return (
     <header className={`h-14 border-b flex items-center px-4 justify-between shrink-0 z-20 ${isNeoBrutalistMode ? 'border-black bg-white shadow-[4px_4px_0_#000]' : isNeumorphismMode ? `${isNeumorphismDark ? 'border-transparent bg-[#1b1f27] text-zinc-100' : 'border-transparent bg-[#e8ecf3] text-slate-800'} shadow-[8px_8px_18px_rgba(163,177,198,0.55),-8px_-8px_18px_rgba(255,255,255,0.95)]` : isCompactNavMode ? (isDark ? 'border-white/5 bg-zinc-950/10' : 'border-zinc-200 bg-white/60 backdrop-blur-sm') : isDark ? 'border-white/5 bg-zinc-950/20 backdrop-blur-sm' : 'border-zinc-200 bg-white/70 backdrop-blur-sm shadow-[0_8px_24px_rgba(0,0,0,0.04)]'}`}>
       <div className={`flex min-w-0 items-center gap-2 ${isCompactNavMode ? 'flex-1 overflow-x-auto pr-4' : 'gap-4'}`}>
@@ -93,27 +135,49 @@ export function Toolbar({ onOpenSearch, onAddPage, layoutMode = 'discord' }: Too
         {isCompactNavMode && data?.pages?.length ? (
           <div className="flex min-w-0 items-center gap-2 overflow-x-auto py-1">
             {data.pages.map((page) => (
-              <button
-                key={page.id}
-                type="button"
-                onClick={() => setActivePage(page.id)}
-                className={`shrink-0 inline-flex h-10 min-w-28 items-center justify-center rounded-xl border-2 px-4 text-sm font-medium transition-colors ${
-                  page.id === activePageId
-                    ? isNeoBrutalistMode
-                      ? 'border-black bg-black text-white shadow-[4px_4px_0_#000]'
-                      : isNeumorphismMode
-                        ? `${isNeumorphismDark ? 'border-transparent bg-[#1b1f27] text-zinc-100' : 'border-transparent bg-[#e8ecf3] text-slate-800'} ${isNeumorphismDark ? 'shadow-[inset_5px_5px_10px_rgba(0,0,0,0.75),inset_-5px_-5px_10px_rgba(0,0,0,0.35)]' : 'shadow-[inset_5px_5px_10px_rgba(163,177,198,0.55),inset_-5px_-5px_10px_rgba(255,255,255,0.95)]'}`
-                      : 'border-transparent bg-emerald-500 text-zinc-950'
+              <div key={page.id} className="group relative shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setActivePage(page.id)}
+                  className={`inline-flex h-10 min-w-28 items-center justify-center rounded-xl border-2 px-4 pr-10 text-sm font-medium transition-colors ${
+                    page.id === activePageId
+                      ? isNeoBrutalistMode
+                        ? 'border-black bg-black text-white shadow-[4px_4px_0_#000]'
+                        : isNeumorphismMode
+                          ? `${isNeumorphismDark ? 'border-transparent bg-[#1b1f27] text-zinc-100' : 'border-transparent bg-[#e8ecf3] text-slate-800'} ${isNeumorphismDark ? 'shadow-[inset_5px_5px_10px_rgba(0,0,0,0.75),inset_-5px_-5px_10px_rgba(0,0,0,0.35)]' : 'shadow-[inset_5px_5px_10px_rgba(163,177,198,0.55),inset_-5px_-5px_10px_rgba(255,255,255,0.95)]'}`
+                        : isCompactNavMode
+                          ? `${isDark ? 'border-white/10 bg-white/10 text-zinc-100' : 'border-white/30 bg-white/35 text-zinc-900'} backdrop-blur-xl shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18),0_8px_24px_rgba(0,0,0,0.08)]`
+                          : 'border-transparent bg-emerald-500 text-zinc-950'
                     : isNeoBrutalistMode
                       ? 'border-black bg-white text-black shadow-[4px_4px_0_#000] hover:bg-zinc-100'
                       : isNeumorphismMode
-                        ? `${isNeumorphismDark ? 'border-transparent bg-[#1b1f27] text-zinc-100' : 'border-transparent bg-[#e8ecf3] text-slate-700'} ${isNeumorphismDark ? 'shadow-[6px_6px_12px_rgba(0,0,0,0.75),-6px_-6px_12px_rgba(0,0,0,0.35)] hover:shadow-[inset_5px_5px_10px_rgba(0,0,0,0.75),inset_-5px_-5px_10px_rgba(0,0,0,0.35)]' : 'shadow-[6px_6px_12px_rgba(163,177,198,0.45),-6px_-6px_12px_rgba(255,255,255,0.95)] hover:shadow-[inset_5px_5px_10px_rgba(163,177,198,0.55),inset_-5px_-5px_10px_rgba(255,255,255,0.95)]'}`
-                      : isDark ? 'border border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10' : 'border border-zinc-200 bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
-                }`}
-                title={page.name}
-              >
-                <span className="max-w-36 truncate">{page.name}</span>
-              </button>
+                          ? `${isNeumorphismDark ? 'border-transparent bg-[#1b1f27] text-zinc-100' : 'border-transparent bg-[#e8ecf3] text-slate-700'} ${isNeumorphismDark ? 'shadow-[6px_6px_12px_rgba(0,0,0,0.75),-6px_-6px_12px_rgba(0,0,0,0.35)] hover:shadow-[inset_5px_5px_10px_rgba(0,0,0,0.75),inset_-5px_-5px_10px_rgba(0,0,0,0.35)]' : 'shadow-[6px_6px_12px_rgba(163,177,198,0.45),-6px_-6px_12px_rgba(255,255,255,0.95)] hover:shadow-[inset_5px_5px_10px_rgba(163,177,198,0.55),inset_-5px_-5px_10px_rgba(255,255,255,0.95)]'}`
+                        : isDark ? 'border border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10' : 'border border-zinc-200 bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
+                  }`}
+                  title={page.name}
+                >
+                  <span className="max-w-36 truncate">{page.name}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSettingsPageId(page.id)}
+                  className={`absolute right-1 top-1/2 -translate-y-1/2 rounded-md p-1 transition-all duration-150 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto focus:opacity-100 focus:pointer-events-auto ${
+                    isNeoBrutalistMode
+                      ? 'text-black hover:bg-zinc-100'
+                      : isNeumorphismMode
+                        ? isNeumorphismDark
+                          ? 'text-zinc-300 hover:bg-white/10'
+                          : 'text-slate-600 hover:bg-black/5'
+                        : isDark
+                          ? 'text-zinc-400 hover:bg-white/10 hover:text-zinc-100'
+                          : 'text-zinc-500 hover:bg-zinc-200 hover:text-zinc-900'
+                  }`}
+                  title={`Settings for ${page.name}`}
+                  aria-label={`Open settings for ${page.name}`}
+                >
+                  <Settings className="h-4 w-4" />
+                </button>
+              </div>
             ))}
 
             <button
@@ -194,14 +258,9 @@ export function Toolbar({ onOpenSearch, onAddPage, layoutMode = 'discord' }: Too
                 role="menuitemradio"
                 aria-checked={themeMode === 'discord'}
                 onClick={() => handleThemeSelect('discord')}
-                className={`flex w-full items-start justify-between gap-3 px-4 py-3 text-left transition-colors ${themeMode === 'discord' ? (isNeoBrutalistMode ? 'bg-black text-white' : isDark ? 'bg-zinc-800/70 text-zinc-100' : 'bg-zinc-100 text-zinc-900') : isNeoBrutalistMode ? 'text-black hover:bg-zinc-100' : isDark ? 'text-zinc-300 hover:bg-zinc-900/60' : 'text-zinc-700 hover:bg-zinc-50'}`}
+                className={`flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium transition-colors ${themeMode === 'discord' ? (isNeoBrutalistMode ? 'bg-black text-white' : isDark ? 'bg-zinc-800/70 text-zinc-100' : 'bg-zinc-100 text-zinc-900') : isNeoBrutalistMode ? 'text-black hover:bg-zinc-100' : isDark ? 'text-zinc-300 hover:bg-zinc-900/60' : 'text-zinc-700 hover:bg-zinc-50'}`}
               >
-                <span>
-                  <span className="block text-sm font-medium">Discord</span>
-                  <span className={`block text-xs leading-5 ${isDark ? 'text-zinc-500' : 'text-zinc-500'}`}>
-                    Current dense shell
-                  </span>
-                </span>
+                <span>Discord</span>
                 {themeMode === 'discord' && <Check className="mt-0.5 h-4 w-4 shrink-0" />}
               </button>
 
@@ -210,14 +269,9 @@ export function Toolbar({ onOpenSearch, onAddPage, layoutMode = 'discord' }: Too
                 role="menuitemradio"
                 aria-checked={themeMode === 'simple'}
                 onClick={() => handleThemeSelect('simple')}
-                className={`flex w-full items-start justify-between gap-3 px-4 py-3 text-left transition-colors ${themeMode === 'simple' ? (isNeoBrutalistMode ? 'bg-black text-white' : isDark ? 'bg-zinc-800/70 text-zinc-100' : 'bg-zinc-100 text-zinc-900') : isNeoBrutalistMode ? 'text-black hover:bg-zinc-100' : isDark ? 'text-zinc-300 hover:bg-zinc-900/60' : 'text-zinc-700 hover:bg-zinc-50'}`}
+                className={`flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium transition-colors ${themeMode === 'simple' ? (isNeoBrutalistMode ? 'bg-black text-white' : isDark ? 'bg-zinc-800/70 text-zinc-100' : 'bg-zinc-100 text-zinc-900') : isNeoBrutalistMode ? 'text-black hover:bg-zinc-100' : isDark ? 'text-zinc-300 hover:bg-zinc-900/60' : 'text-zinc-700 hover:bg-zinc-50'}`}
               >
-                <span>
-                  <span className="block text-sm font-medium">Simple Mode</span>
-                  <span className={`block text-xs leading-5 ${isDark ? 'text-zinc-500' : 'text-zinc-500'}`}>
-                    Cleaner top-tab layout
-                  </span>
-                </span>
+                <span>Simple Mode</span>
                 {themeMode === 'simple' && <Check className="mt-0.5 h-4 w-4 shrink-0" />}
               </button>
 
@@ -226,14 +280,9 @@ export function Toolbar({ onOpenSearch, onAddPage, layoutMode = 'discord' }: Too
                 role="menuitemradio"
                 aria-checked={themeMode === 'neobrutalist'}
                 onClick={() => handleThemeSelect('neobrutalist')}
-                className={`flex w-full items-start justify-between gap-3 px-4 py-3 text-left transition-colors ${themeMode === 'neobrutalist' ? 'bg-black text-white' : isDark ? 'text-zinc-300 hover:bg-zinc-900/60' : 'text-zinc-700 hover:bg-zinc-50'}`}
+                className={`flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium transition-colors ${themeMode === 'neobrutalist' ? 'bg-black text-white' : isDark ? 'text-zinc-300 hover:bg-zinc-900/60' : 'text-zinc-700 hover:bg-zinc-50'}`}
               >
-                <span>
-                  <span className="block text-sm font-medium">NeoBrutalist</span>
-                  <span className={`block text-xs leading-5 ${themeMode === 'neobrutalist' ? 'text-white/70' : 'text-zinc-500'}`}>
-                    White and black high-contrast shell
-                  </span>
-                </span>
+                <span>NeoBrutalist</span>
                 {themeMode === 'neobrutalist' && <Check className="mt-0.5 h-4 w-4 shrink-0" />}
               </button>
 
@@ -242,14 +291,9 @@ export function Toolbar({ onOpenSearch, onAddPage, layoutMode = 'discord' }: Too
                 role="menuitemradio"
                 aria-checked={themeMode === 'neumorphism'}
                 onClick={() => handleThemeSelect('neumorphism')}
-                className={`flex w-full items-start justify-between gap-3 px-4 py-3 text-left transition-colors ${themeMode === 'neumorphism' ? 'bg-[#e8ecf3] text-slate-800' : isNeumorphismMode ? 'text-slate-700 hover:bg-[#e8ecf3]' : isDark ? 'text-zinc-300 hover:bg-zinc-900/60' : 'text-zinc-700 hover:bg-zinc-50'}`}
+                className={`flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium transition-colors ${themeMode === 'neumorphism' ? 'bg-[#e8ecf3] text-slate-800' : isNeumorphismMode ? 'text-slate-700 hover:bg-[#e8ecf3]' : isDark ? 'text-zinc-300 hover:bg-zinc-900/60' : 'text-zinc-700 hover:bg-zinc-50'}`}
               >
-                <span>
-                  <span className="block text-sm font-medium">Neumorphism</span>
-                  <span className={`block text-xs leading-5 ${themeMode === 'neumorphism' ? 'text-slate-500' : 'text-zinc-500'}`}>
-                    Soft pressed-in panels and buttons
-                  </span>
-                </span>
+                <span>Neumorphism</span>
                 {themeMode === 'neumorphism' && <Check className="mt-0.5 h-4 w-4 shrink-0" />}
               </button>
             </div>
@@ -266,6 +310,25 @@ export function Toolbar({ onOpenSearch, onAddPage, layoutMode = 'discord' }: Too
           <span className="text-xs font-mono opacity-50 block md:hidden lg:block">/</span>
         </button>
       </div>
+
+      {settingsPage && (
+        <PageSettingsModal
+          isOpen={Boolean(settingsPage)}
+          pageName={settingsPage.name}
+          onClose={() => setSettingsPageId(null)}
+          onSaveName={handleSavePageName}
+          visibleCount={settingsPage.visibleBookmarksPerBoard}
+          onSaveVisibleCount={(count) => {
+            try {
+              setPageVisibleBookmarks(settingsPage.id, count);
+              addToast(`Set ${count} visible bookmarks per board on "${settingsPage.name}"`, 'success');
+            } catch {
+              addToast('Failed to save page settings', 'error');
+            }
+          }}
+          onDeletePage={handleDeletePage}
+        />
+      )}
     </header>
   );
 }

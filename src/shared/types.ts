@@ -35,6 +35,7 @@ export type Settings = {
   // Appearance Settings
   compactMode?: boolean;
   themeMode?: 'discord' | 'simple' | 'neobrutalist' | 'neumorphism';
+  fontFamily?: 'plus-jakarta-sans' | 'satoshi' | 'google-sans' | 'electrolize' | 'dm-mono' | 'jetbrains-mono' | 'comic-sans' | 'space-grotesk';
 };
 
 export type BookmrkData = {

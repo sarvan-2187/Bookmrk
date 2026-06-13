@@ -1,8 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Stack+Sans+Text:wght@200..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200..800&family=Electrolize&family=DM+Mono:ital,wght@0,400;0,500&family=JetBrains+Mono:wght@400..800&family=Google+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&family=Space+Grotesk:wght@400..700&display=swap');
+@import url('https://fonts.cdnfonts.com/css/comic-sans');
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap');
 @import "tailwindcss";
 
 :root {
-	--font-sans: 'Stack Sans Text', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+	--font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+	--font-satoshi: 'Satoshi', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	--font-google-sans: 'Google Sans', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+	--font-electrolize: 'Electrolize', ui-sans-serif, system-ui, sans-serif;
+	--font-space-grotesk: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+	--font-comic-sans: 'Comic Sans MS', 'Comic Sans', cursive;
+	--font-dm-mono: 'DM Mono', monospace;
+	--font-jetbrains-mono: 'JetBrains Mono', monospace;
 }
 
 html, body {
@@ -19,6 +28,15 @@ html, body {
   width: 100%;
   height: 100%;
 }
+
+[data-font-family='plus-jakarta-sans'] { --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif; }
+[data-font-family='satoshi'] { --font-sans: var(--font-satoshi); }
+[data-font-family='google-sans'] { --font-sans: var(--font-google-sans); }
+[data-font-family='electrolize'] { --font-sans: var(--font-electrolize); }
+[data-font-family='space-grotesk'] { --font-sans: var(--font-space-grotesk); }
+[data-font-family='comic-sans'] { --font-sans: var(--font-comic-sans); }
+[data-font-family='dm-mono'] { --font-sans: var(--font-dm-mono); }
+[data-font-family='jetbrains-mono'] { --font-sans: var(--font-jetbrains-mono); }
 
 @media (prefers-color-scheme: light) {
   html, body {
@@ -95,4 +113,3 @@ html, body {
     border: 1px solid rgba(0,0,0,0.04);
   }
 }
-
