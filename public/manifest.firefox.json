@@ -2,14 +2,19 @@
   "manifest_version": 3,
   "name": "Bookmrk",
   "version": "1.5.0",
-  "description": "Open-Source, Local-First Visual Bookmark Manager for Chrome",
+  "description": "Open-Source, Local-First Visual Bookmark Manager for Firefox",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "bookmrk@local.dev",
+      "strict_min_version": "109.0"
+    }
+  },
   "chrome_url_overrides": {
     "newtab": "index.html"
   },
   "permissions": [
     "storage",
     "bookmarks",
-    "commands",
     "contextMenus",
     "tabs",
     "scripting"
@@ -42,6 +47,7 @@
     }
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "scripts": ["background.js"]
   }
 }

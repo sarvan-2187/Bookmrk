@@ -6,7 +6,10 @@ import {copyFileSync} from 'fs';
 
 export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', '');
+  const isExtensionBuild =
+    process.env.BUILD_TARGET === 'firefox' || process.env.BUILD_TARGET === 'chromium';
   return {
+    base: isExtensionBuild ? './' : '/',
     plugins: [
       react(),
       tailwindcss(),
@@ -15,7 +18,11 @@ export default defineConfig(({mode}) => {
         apply: 'build',
         writeBundle() {
           copyFileSync('public/background.js', 'dist/background.js');
-          copyFileSync('public/manifest.json', 'dist/manifest.json');
+          const manifestSource =
+            process.env.BUILD_TARGET === 'firefox'
+              ? 'public/manifest.firefox.json'
+              : 'public/manifest.json';
+          copyFileSync(manifestSource, 'dist/manifest.json');
         },
       },
     ],

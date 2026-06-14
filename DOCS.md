@@ -122,6 +122,54 @@ Behavioral notes:
 Packaging recommendation:
 - When building for an extension platform, copy the `dist/` output into a temporary folder with `manifest.json` and `icons/`, then load it as an unpacked extension for testing.
 
+### Firefox support
+
+Bookmrk ships a Firefox-specific manifest at `public/manifest.firefox.json`. It adds the required `browser_specific_settings.gecko.id` (Chrome ignores this field, so the Chrome manifest is unchanged).
+
+Build and run in Firefox:
+
+```bash
+npm install
+npm run firefox:run
+```
+
+This builds the extension into `dist/` with relative asset paths and launches Firefox with the add-on loaded temporarily.
+
+Manual load (without `web-ext`):
+
+```bash
+npm run build:firefox
+```
+
+Then in Firefox open `about:debugging` → **This Firefox** → **Load Temporary Add-on…** → select `dist/manifest.json`.
+
+Package a Firefox `.zip` for distribution:
+
+```bash
+npm run release:firefox
+```
+
+The artifact is written to `firefox-releases/Bookmrk-v1.5.0.zip` (version from `release.config.json`).
+
+Chromium release zip:
+
+```bash
+npm run release:chromium
+```
+
+The artifact is written to `chromium-releases/Bookmrk-v1.5.0.zip`.
+
+Both zips at once:
+
+```bash
+npm run release:all
+```
+
+Notes:
+- Firefox MV3 requires Firefox 109 or later.
+- Quick Save uses `Ctrl+Shift+Y` (Windows/Linux) or `Command+Shift+Y` (macOS), same as Chromium.
+- The **Import Chrome** toolbar action uses the browser bookmarks API; in Firefox it imports your Firefox bookmarks into an `Imported Bookmarks` board.
+
 ---
 
 ## Core features and UI walkthrough
@@ -266,11 +314,6 @@ Notes:
 `SearchModal` (`src/components/Search/SearchModal.tsx`)
 - Purpose: search across bookmarks and pages.
 - Behavior: instant fuzzy search with keyboard navigation of results.
-
----
-
-### OperaGX folder
-- Note: `src/components/OperaGX/` exists for platform-specific tweaks. If you use Opera GX, some UI optimizations/overrides apply.
 
 ---
 

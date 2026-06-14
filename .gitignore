@@ -6,3 +6,5 @@ coverage/
 .env*
 !.env.example
 dist/
+firefox-releases/
+chromium-releases/

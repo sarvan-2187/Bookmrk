@@ -6,6 +6,13 @@
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
     "build": "vite build",
+    "build:firefox": "node scripts/build-extension.mjs firefox",
+    "build:chromium": "node scripts/build-extension.mjs chromium",
+    "release:firefox": "node scripts/package-release.mjs firefox",
+    "release:chromium": "node scripts/package-release.mjs chromium",
+    "release:all": "node scripts/package-release.mjs all",
+    "firefox:run": "npm run build:firefox && web-ext run --config web-ext.config.mjs",
+    "firefox:build": "npm run release:firefox",
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit"
@@ -36,6 +43,8 @@
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
-    "vite": "^6.2.3"
+    "vite": "^6.2.3",
+    "archiver": "^7.0.1",
+    "web-ext": "^8.10.0"
   }
 }

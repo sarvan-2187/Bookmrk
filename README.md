@@ -63,19 +63,21 @@ Key design goals:
 
 ## Quick Start (User)
 
-### Install via GitHub Releases
+### Install on Chrome / Chromium (via GitHub Releases)
 
 Prerequisites:
 - Chromium-based browser (Chrome, Brave, Edge, Arc, etc.)
 - Developer Mode enabled in Extensions
 
-### Installation Steps
+#### Installation Steps
 
 1. Download the latest extension ZIP from the GitHub Releases page.
 
 ```txt
-Repo → Releases → Download latest boomrk-extension-v1.0.0.zip
+Repo → Releases → Download latest Bookmrk-v1.5.0.zip from chromium-releases/
 ```
+
+Or build locally with `npm run release:chromium` (output: `chromium-releases/Bookmrk-v1.5.0.zip`).
 
 2. Extract the ZIP file.
 
@@ -105,6 +107,75 @@ chrome://extensions
 6. Select the extracted `boomrk-extension` folder.
 
 7. Bookmrk is now installed 🎉
+
+---
+
+### Install on Firefox (from source)
+
+Prerequisites:
+- [Mozilla Firefox 109+](https://www.mozilla.org/firefox/)
+- Node.js 18+ and npm (for building the extension)
+
+#### Option A — Build and launch automatically (recommended for testing)
+
+From the project root:
+
+```bash
+git clone <repo-url>
+cd bookmrk
+npm install
+npm run firefox:run
+```
+
+This builds the extension into `dist/` and opens Firefox with Bookmrk loaded as a temporary add-on. A new tab should show the Bookmrk UI.
+
+#### Option B — Build and load manually
+
+```bash
+npm install
+npm run build:firefox
+```
+
+Then in Firefox:
+
+1. Open `about:debugging`
+2. Click **This Firefox** in the left sidebar
+3. Click **Load Temporary Add-on…**
+4. Select `dist/manifest.json` from your build output
+
+Bookmrk replaces the new tab page once loaded.
+
+#### Package a Firefox ZIP (optional)
+
+To create a distributable add-on archive:
+
+```bash
+npm run release:firefox
+```
+
+The zip is written to `firefox-releases/Bookmrk-v1.5.0.zip` (version from `release.config.json`).
+
+Notes:
+- Temporary add-ons are removed when Firefox closes. Run `npm run firefox:run` again during development.
+- Quick Save uses **Ctrl+Shift+Y** (Windows/Linux) or **Command+Shift+Y** (macOS), same as Chromium.
+- The toolbar **Import Chrome** action uses the browser bookmarks API; in Firefox it imports your Firefox bookmarks into an `Imported Bookmarks` board.
+
+---
+
+### Build Chromium release from source
+
+```bash
+npm install
+npm run release:chromium
+```
+
+Output: `chromium-releases/Bookmrk-v1.5.0.zip`. Extract and load via `chrome://extensions` → **Load unpacked**.
+
+Build both browser zips:
+
+```bash
+npm run release:all
+```
 
 ---
 
@@ -140,7 +211,7 @@ Notes:
 - Shortcuts are disabled while typing in inputs, textareas, or contenteditable elements.
 - Some actions (like Search) are blocked when Drag Mode is active to prevent accidental triggers.
 
-Note: Browser-level keyboard handling may vary across platforms and OS; when running as an extension, Chrome-specific platform behavior applies.
+Note: Browser-level keyboard handling may vary across platforms and OS; when running as an extension, browser-specific shortcut conflicts may apply (check `about:addons` → Bookmrk → **Manage extension shortcuts** in Firefox).
 
 ## Usage & Workflows
 
@@ -287,7 +358,14 @@ npm run preview
 ## Scripts
 
 - `npm run dev` — start Vite dev server
-- `npm run build` — production build
+- `npm run build` — production build (web app / Chromium extension bundle)
+- `npm run build:firefox` — build Firefox extension bundle into `dist/`
+- `npm run build:chromium` — build Chromium extension bundle into `dist/`
+- `npm run release:firefox` — build and zip to `firefox-releases/Bookmrk-vX.Y.Z.zip`
+- `npm run release:chromium` — build and zip to `chromium-releases/Bookmrk-vX.Y.Z.zip`
+- `npm run release:all` — create both release zips
+- `npm run firefox:run` — build for Firefox and launch Firefox with the add-on loaded
+- `npm run firefox:build` — alias for `release:firefox`
 - `npm run preview` — preview production build locally
 
 ## Testing, Linting & Formatting
@@ -375,7 +453,13 @@ When opening a PR, please include:
 
 Q: Quick Save isn't working in my browser.
 <br/>
-A: Ensure the page has focus and the app/extension is active. Browser-level keybindings can conflict; try the toolbar Quick Save button as a fallback.
+A: Ensure the page has focus and the app/extension is active. Browser-level keybindings can conflict; try the toolbar Quick Save button as a fallback. In Firefox, check **about:addons** → Bookmrk → **Manage extension shortcuts** if **Ctrl+Shift+Y** is taken.
+<br/>
+<br/>
+
+Q: How do I install Bookmrk on Firefox?
+<br/>
+A: Build from source with `npm run firefox:run`, or run `npm run release:firefox` and load the add-on from the extracted `firefox-releases/Bookmrk-v1.5.0.zip`. See **Install on Firefox** under Quick Start for full steps.
 <br/>
 <br/>
 
