@@ -1,502 +1,242 @@
+<a href="https://extension.js.org" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/badge/Powered%20by%20%7C%20Extension.js-0971fe" alt="Powered by Extension.js" align="right" /></a>
 
-<img width="2000" height="600" alt="Bookmrk" src="https://github.com/user-attachments/assets/d3ce19a4-2b43-4173-a57a-353e3d390613" />
+# Bookmrk
 
+> Open-source, local-first visual bookmark manager. Replaces your New Tab page with a four-column canvas of boards, and runs on Chrome, Firefox and Edge from a single codebase.
 
-> ### Bookmrk is a lightweight, open-source bookmark manager built with React, TypeScript, Vite and Tailwind CSS. It is designed as a modern local-first bookmark manager with quick-save keyboard shortcuts, multi-board organization, a canvas-style 4-column board layout, Chrome import fallback, flexible backgrounds and a bunch of themes.
+**v1.6.0** is a rebuild of [Bookmrk 1.5.0](https://github.com/sarvan-2187/Bookmrk) (Vite + two hand-maintained manifests) on top of [Extension.js](https://extension.js.org). Your data carries over — see [Migrating from 1.5.0](#migrating-from-150).
 
-[![The Website for this chrome extension is Powered by DigitalPlat FreeDomain Get a free domain from DigitalPlat.](https://img.shields.io/badge/DigitalPlat-Get%20a%20free%20domain%20from%20DigitalPlat.-111827?style=flat-square&logo=databricks&logoColor=93c5fd)](https://dash.domain.digitalplat.org/signup?ref=rQsyzyJRMl)
-![GitHub License](https://img.shields.io/github/license/sarvan-2187/Bookmrk?style=flat-square)
-![GitHub Repo stars](https://img.shields.io/github/stars/sarvan-2187/Bookmrk?style=flat-square&label=Stars)
+---
 
+## Contents
 
+- [Install](#install)
+- [Features](#features)
+- [Keyboard shortcuts](#keyboard-shortcuts)
+- [Migrating from 1.5.0](#migrating-from-150)
+- [What changed since 1.5.0](#what-changed-since-150)
+- [Architecture](#architecture)
+- [Development](#development)
 
+---
 
-This README is intended to be a comprehensive reference for users and contributors: installation, usage, architecture, data model, storage & migration, development and contribution guidelines, troubleshooting, and FAQs.
+## Install
 
+Grab the ZIP for your browser from the [**Releases**](../../releases/latest) page — `Bookmrk-v1.6.0-chromium.zip`, `Bookmrk-v1.6.0-firefox.zip` or `Bookmrk-v1.6.0-edge.zip` — and extract it somewhere you'll keep (the browser loads it from that folder, so deleting it uninstalls the extension).
 
-## Table of Contents
-- **Overview**
-- **Features**
-- **Quick Start (User)**
-- **Keyboard Shortcuts**
-- **Usage & Workflows**
-- **Storage, Import & Export**
-- **Data Model**
-- **Theming & Backgrounds**
-- **Architecture & Code Structure**
-- **Development Setup**
-- **Build & Run Commands**
-- **Testing, Linting & Formatting**
-- **Contribution Guide**
-- **Troubleshooting & FAQ**
-- **Privacy & Data Considerations**
-- **License & Contact**
+### Chrome / Edge
 
-## Overview
+1. Open `chrome://extensions` (or `edge://extensions`).
+2. Turn on **Developer mode** (top right).
+3. Click **Load unpacked** and select the extracted folder.
+4. Open a new tab — Bookmrk is there.
 
-Bookmrk helps you capture and organize web pages into Boards and Pages. It focuses on fast keyboard-driven capture (Quick Save), portable storage, and a clean UI with modal-based input and toasts instead of intrusive browser prompts.
+### Firefox
 
-Key design goals:
-- Fast capture with minimal friction (Quick Save keyboard binding)
-- Organize bookmarks into Boards and Pages (like folders + boards)
-- Organize boards in a canvas-style 4-column layout, including empty columns as valid drop targets
-- Local-first persistence with optional Chrome bookmarks import
-- Configurable background (image URL, upload)
-- Accessible, centralized modals rendered via portals for consistent UX
+1. Open `about:debugging` → **This Firefox**.
+2. Click **Load Temporary Add-on…** and select `manifest.json` inside the extracted folder.
+3. Open a new tab.
+
+> Firefox removes temporary add-ons when it restarts, so this needs redoing each session until the add-on is signed.
+
+### Build it yourself
+
+Requires Node.js 22.12+.
+
+```bash
+npm install
+npm run build:chrome     # or build:firefox / build:edge  → dist/<browser>/
+```
+
+Load `dist/chrome` (or `dist/edge`) unpacked, or `dist/firefox/manifest.json` in `about:debugging`. To reproduce the release ZIPs exactly, run `npm run release`.
+
+If you're changing the code, `npm run dev -- --browser=chrome` launches a browser with the extension loaded and hot-reloads as you edit — no manual reloading.
+
+---
 
 ## Features
 
-- Quick Save: press Ctrl/Cmd + Shift + Y on any page to save it to a `Quick Saves` board (auto-created if missing).
-- Boards & Pages: multiple boards per page, multiple pages; boards can be dragged into any of the four canvas columns, including empty columns. When dragging a board over another board in a different column, the board will be inserted at that position (before or after the target board based on cursor proximity).
-- Centered modals and accessible inputs: all modals are portaled to the app root and theme-aware.
-- Background options: set an external image URL or upload an image (stored as data URL) as homepage background.
-- Toast notifications: replace alerts/prompts with in-app toasts (auto-dismissable).
-- Board actions: edit name, delete (with confirmation), summon (opens bookmarks without a result toast), add bookmark.
-- Bookmark cards: click the card itself to open the URL, with settings and delete actions available from the card menu.
-- Page actions: rename and delete (with safe-guards preventing deleting the last page).
-- Settings: configurable behavior and appearance options including:
-- **Behavior**: Open links in new tab, show/hide bookmark descriptions
-- **Appearance**: Compact mode for condensed card display, plus a font picker with multiple UI fonts
-  - **Support**: Help form with optional contact information (powered by NTFY.sh)
-- Chrome integration: optional import of Chrome bookmarks when running as an extension; a flag prevents repeated imports.
-- Export/Import JSON: export user data with settings metadata (background stripped by default for safe portability), import JSON to restore data.
+### Organising
 
-## Quick Start (User)
+- **Pages → Boards → Bookmarks.** Multiple pages, each a four-column canvas of boards.
+- **Drag to rearrange.** Boards move between columns (empty columns are valid drop targets); bookmarks move within and across boards. Boards drag from their header; bookmarks drag from their favicon, which turns into a grip on hover.
+- **Per-board bookmark limit.** Each page sets how many bookmarks show per board before a "Show more" fold.
+- **Right-click anything.** Board → add bookmark, rename, open all, delete. Bookmark → open in new tab, copy link, edit, delete. `Shift+F10` does the same from the keyboard.
 
-### Install on Chrome / Chromium (via GitHub Releases)
+### Capture
 
-Prerequisites:
-- Chromium-based browser (Chrome, Brave, Edge, Arc, etc.)
-- Developer Mode enabled in Extensions
+- **Quick Save** — `Ctrl/Cmd+Shift+Y` on any page saves the current tab to a `Quick Saves` board (created on demand), with a confirmation toast injected into the page. Works even when Bookmrk isn't the active tab.
+- **Right-click → Save to Bookmrk** from any page's context menu.
+- **Import from your browser** — pulls Chrome/Firefox bookmarks into an `Imported` board.
 
-#### Installation Steps
+### Finding
 
-1. Download the latest extension ZIP from the GitHub Releases page.
+- **Search** (`/`) across titles, URLs, notes, tags, board and page names.
+- **Command palette** (`Ctrl/Cmd+K`) covering **every** action in the app: page switch/create/rename/delete, new board, export/import, all four themes, colour modes, layouts, background, compact mode, blur, settings, help.
+- **Tags** — tag any bookmark, then filter by tag chips in search.
 
-```txt
-Repo → Releases → Download latest Bookmrk-v1.5.0.zip from chromium-releases/
-```
+### Appearance
 
-Or build locally with `npm run release:chromium` (output: `chromium-releases/Bookmrk-v1.5.0.zip`).
+- **Four themes** — Discord, Simple, NeoBrutalist, Neumorphism.
+- **Deep-black (AMOLED) dark mode** for Discord and Simple: true `#000` page with cards lifted by a hairline border and a subtle glass blur rather than a lighter grey fill.
+- **Colour mode** — System / Light / Dark, independent of theme.
+- **Layout** — Sidebar or Tabs, also independent of theme. Every feature is reachable in both.
+- **Backgrounds** — eight bundled Unsplash presets, or your own image URL / uploaded file.
+- **Eight UI fonts**, compact mode, and optional bookmark descriptions.
 
-2. Extract the ZIP file.
+### Safety & privacy
 
-After extraction, the folder should contain:
+- **Undo delete.** Deleting a bookmark, board or page is staged for ~6 seconds with an Undo action on the toast.
+- **Privacy blur** (`x`) blurs every bookmark until you hover one — for screen sharing.
+- **Local-first.** Everything lives in `chrome.storage.local`. No account, no telemetry, no sync.
 
-```txt
-manifest.json
-index.html
-assets/
-icons/
-background.js
-content_toast.js
-favicon.svg
-icons.svg
-```
+  Bookmrk makes exactly four kinds of outbound request, all of them a direct consequence of something you did:
 
-3. Open your browser extensions page:
+  | Request | When |
+  |---|---|
+  | `google.com/s2/favicons` | Fetching a bookmark's icon |
+  | The bookmarked page itself | On add — read once to scrape its `og:description` (`store/useStore.ts`) |
+  | Your background image URL | If you set an image background (uploads are stored locally as data URLs) |
+  | `ntfy.sh/bookmrk-help-v1` | Only when you submit the Settings → Support form |
 
-```txt
-chrome://extensions
-```
+### Accessibility
 
-4. Enable **Developer Mode** (top-right corner).
-
-5. Click **Load unpacked**.
-
-6. Select the extracted `boomrk-extension` folder.
-
-7. Bookmrk is now installed 🎉
+Focus is trapped in modals and restored on close; every icon-only control has an accessible name; menus support arrow-key navigation; drag-and-drop works from the keyboard (Space to lift, arrows to move, Space to drop); focus rings are guaranteed visible in every theme. Colour pairs are checked against WCAG AA.
 
 ---
 
-### Install on Firefox (from source)
+## Keyboard shortcuts
 
-Prerequisites:
-- [Mozilla Firefox 109+](https://www.mozilla.org/firefox/)
-- Node.js 18+ and npm (for building the extension)
+| Key | Action |
+|---|---|
+| `/` | Search bookmarks |
+| `Ctrl/Cmd + K` | Command palette |
+| `Ctrl/Cmd + Shift + Y` | Quick Save current tab (works on any page) |
+| `p` | New page |
+| `i` | Open settings |
+| `s` | Toggle sidebar (Sidebar layout only) |
+| `x` | Toggle privacy blur |
+| `?` | Show shortcuts |
+| `Right-click` / `Shift + F10` | Board or bookmark actions |
+| `Esc` | Close the open modal or menu |
 
-#### Option A — Build and launch automatically (recommended for testing)
+Shortcuts are ignored while typing in a field. `Ctrl/Cmd+K` works even then.
 
-From the project root:
+---
 
-```bash
-git clone <repo-url>
-cd bookmrk
-npm install
-npm run firefox:run
+## Migrating from 1.5.0
+
+**The data format is unchanged between 1.5.0 and 1.6.0**, so migration is an export/import:
+
+1. In the original extension: sidebar → **Export JSON**.
+2. In this build: **⋯ → Import JSON** (or `Ctrl/Cmd+K` → "Import JSON") and pick that file.
+
+The two extensions have separate storage (different extension IDs), so installing this one never touches the original's data — keep both installed until you're happy.
+
+Note that exports deliberately omit the background image to keep the file small; re-pick your background afterwards.
+
+---
+
+## What changed since 1.5.0
+
+### Breaking
+
+| | 1.5.0 | 1.6.0 |
+|---|---|---|
+| **Drag Mode** | Global toggle that had to be on to drag, and blocked ~8 other actions while active | **Removed.** Drag any time from a board header or a bookmark's favicon grip |
+| **Board settings modal** | Modal with rename / summon / delete + confirm checkbox | **Removed.** Those actions are on the board's right-click menu; delete is undoable instead of confirmed |
+| **Per-card action buttons** | `⋯` on every board header, `⋯`+🗑 on every bookmark row | **Removed.** Right-click (or `Shift+F10`) instead |
+| **Toolbar** | 9 icon buttons | **4** — Search, Quick Save, Pages, ⋯ More. The rest moved into ⋯ and the command palette |
+| **Theme picker button** | Palette button in the toolbar | **Removed** — theme lives in Settings → Appearance and in the palette |
+| **Layout follows theme** | Discord got a sidebar; the other three got tabs, and Export/Import JSON were unreachable outside Discord | **Layout is its own setting** (`navStyle`), independent of theme. Every action is reachable in both layouts |
+| **Firefox manifest** | Separate `public/manifest.firefox.json` | Single `src/manifest.json` using Extension.js `chromium:` / `firefox:` key prefixes |
+| **`commands` permission** | Listed in `permissions` | Dropped — it was never a valid permission string; the `commands` manifest key is what matters |
+| **`host_permissions`** | `https://*/*`, `http://*/*`, `<all_urls>` | Just `<all_urls>` (the other two were redundant) |
+| **Build tooling** | Vite + custom `scripts/build-extension.mjs`, `package-release.mjs`, `web-ext` | Extension.js CLI (`extension build --browser …`). Those scripts and `vite.config.ts`, `web-ext.config.mjs`, `release.config.json` are gone |
+| **Dependencies** | Included `@google/genai`, `express`, `dotenv`, `motion` | Dropped — `@google/genai` and `motion` had zero imports; the others only served the old dev server |
+
+Settings added since: `colorMode`, `navStyle`. Both are optional and fall back to the original behaviour, so an old export imports cleanly.
+
+### Path changes
+
+The app moved under a `newtab/` entry point, since Extension.js keys pages by folder:
+
+| Original | This build |
+|---|---|
+| `index.html`, `src/main.tsx`, `src/App.tsx` | `src/newtab/index.html`, `src/newtab/main.tsx`, `src/newtab/App.tsx` |
+| `src/components/**`, `src/shared/**`, `src/store/**`, `src/storage/**` | `src/newtab/…` (same layout underneath) |
+| `src/index.css` | `src/newtab/styles/index.css` (+ new `themes.css`, `components.css`) |
+| `public/background.js` | `src/background.ts` |
+| `public/content_toast.js` | `src/content/scripts.ts` |
+| `public/manifest.json` + `public/manifest.firefox.json` | `src/manifest.json` |
+| `public/icons/**` | `src/icons/**` |
+
+New files: `src/newtab/shared/actions.ts` (shared prompt flows), `src/newtab/shared/commands.ts` (the command registry), `src/newtab/components/Shared/ui/*` (Button, IconButton, Menu, ContextMenu, Panel, Field), `src/newtab/styles/themes.css` + `components.css`.
+
+### Fixed along the way
+
+- Themes decided *which features existed*, not just how they looked — Export JSON, Import JSON and Backgrounds were unreachable in some themes.
+- `--accent` equalled the surface colour in Simple and Neumorphism, so every primary button was invisible — and since the focus ring was `var(--accent)`, **keyboard focus was invisible in two of four themes**.
+- `border-b` combined with `[border-width:…]` drew a full box instead of a divider (20 places), because `border-width` is the all-sides shorthand.
+- A Tailwind group-name collision made *every* bookmark's drag grip appear at once when hovering anywhere in a column.
+- Danger/warning/success colours were hardcoded hex in 14 files and ignored the active theme.
+- The sidebar's "Chrome imported" check looked for a board name (`Imported Bookmarks`) that the importer never creates (`Imported`).
+
+---
+
+## Architecture
+
+```
+src/
+├── manifest.json          # one cross-browser manifest (chromium:/firefox: prefixes)
+├── background.ts          # context menu + quick-save command, writes chrome.storage.local
+├── content/scripts.ts     # in-page Quick Save toast
+└── newtab/                # the New Tab app
+    ├── App.tsx            # shell, global shortcuts, theme/layout attributes
+    ├── store/useStore.ts  # Zustand: data, modals, undo-delete staging
+    ├── storage/local.ts   # chrome.storage.local adapter + JSON export/import
+    ├── shared/            # types, utils, actions, command registry
+    ├── styles/            # index.css, themes.css (tokens), components.css (primitives)
+    └── components/        # Toolbar, Sidebar, PageView, Board, Bookmark, modals, ui/
 ```
 
-This builds the extension into `dist/` and opens Firefox with Bookmrk loaded as a temporary add-on. A new tab should show the Bookmrk UI.
+Two conventions worth knowing before you edit:
 
-#### Option B — Build and load manually
+1. **Themes are cosmetic only.** A theme may change how things look, never which controls exist or where they live — that's `Settings.navStyle`'s job. Components read `var(--token)` from `styles/themes.css`; they never branch on `isDark` / `isNeoBrutalist` to pick a colour.
+2. **Every action belongs in `shared/commands.ts`.** The toolbar shows four buttons, so anything missing from the registry is unreachable by keyboard. Add features there too.
+
+**Stack:** React 19, Zustand, dnd-kit, Tailwind v4, lucide-react, Sonner.
+
+---
+
+## Development
 
 ```bash
-npm install
+npm run dev                      # Chromium, hot reload
+npm run dev -- --browser=firefox # or edge
+npm run lint                     # tsc --noEmit
+npm run build:chrome             # production build → dist/chrome
 npm run build:firefox
+npm run build:edge
+npm run preview                  # preview a production build
 ```
 
-Then in Firefox:
-
-1. Open `about:debugging`
-2. Click **This Firefox** in the left sidebar
-3. Click **Load Temporary Add-on…**
-4. Select `dist/manifest.json` from your build output
-
-Bookmrk replaces the new tab page once loaded.
-
-#### Package a Firefox ZIP (optional)
-
-To create a distributable add-on archive:
+### Cutting a release
 
 ```bash
-npm run release:firefox
+npm run release                  # all three archives
+npm run release -- firefox       # just one target
+npm run zip:source               # source ZIP, only needed for Firefox AMO review
 ```
 
-The zip is written to `firefox-releases/Bookmrk-v1.5.0.zip` (version from `release.config.json`).
+Produces `Bookmrk-v<version>-chromium.zip`, `-firefox.zip` and `-edge.zip` (~186 KB each) at the repo root, ready to attach to a GitHub Release. Root-level `*.zip` is gitignored, so build output never lands in history.
 
-Notes:
-- Temporary add-ons are removed when Firefox closes. Run `npm run firefox:run` again during development.
-- Quick Save uses **Ctrl+Shift+Y** (Windows/Linux) or **Command+Shift+Y** (macOS), same as Chromium.
-- The toolbar **Import Chrome** action uses the browser bookmarks API; in Firefox it imports your Firefox bookmarks into an `Imported Bookmarks` board.
+The version is read from `src/manifest.json` — bump that, then tag the release `v<version>` to match.
+
+Before opening a PR: `npm run lint` and all three builds should be clean, and the change should be checked in each theme × both layouts × light/dark — that matrix is where this codebase historically broke.
 
 ---
 
-### Build Chromium release from source
+## Licence
 
-```bash
-npm install
-npm run release:chromium
-```
-
-Output: `chromium-releases/Bookmrk-v1.5.0.zip`. Extract and load via `chrome://extensions` → **Load unpacked**.
-
-Build both browser zips:
-
-```bash
-npm run release:all
-```
-
----
-
-### First-Time Usage
-
-1. Open the Bookmrk extension/app.
-2. Create Pages and Boards using the `+` controls.
-3. Open any website in a browser tab.
-4. Press:
-
-```txt
-Ctrl/Cmd + Shift + Y
-```
-
-5. Bookmrk will instantly save the page into the **Quick Saves** board.
-6. Use the Board settings menu `(⋯)` to rename, delete, organize, or summon bookmarks.
-
----
-
-### Quick Save Flow
-
-<img width="1861" height="1021" alt="Discord Theme" src="https://raw.githubusercontent.com/sarvan-2187/Bookmrk/refs/heads/main/docs/screenshots/flow-quick-save.png" />
-
-## Keyboard Shortcuts
-
-<img width="1861" height="1021" alt="Discord Theme" src="https://raw.githubusercontent.com/sarvan-2187/Bookmrk/refs/heads/main/docs/screenshots/key-board-shortcuts.png" />
-
-<div align="center">Keyboard Shortcuts Guide</div>
-
-<br/>
-
-Notes:
-- Shortcuts are disabled while typing in inputs, textareas, or contenteditable elements.
-- Some actions (like Search) are blocked when Drag Mode is active to prevent accidental triggers.
-
-Note: Browser-level keyboard handling may vary across platforms and OS; when running as an extension, browser-specific shortcut conflicts may apply (check `about:addons` → Bookmrk → **Manage extension shortcuts** in Firefox).
-
-## Usage & Workflows
-
-- Quick Save workflow: quick-capture many pages during browsing sessions — the Quick Saves board collects these. Periodically move or curate entries into other boards.
-- Summoning bookmarks: use the Summon action on a board to open all bookmarks. Use cautiously — popup blockers or tab explosions may occur.
-- Board organization workflow: drag boards across the canvas to regroup them by column. Empty columns are valid drop targets, so you can build a layout by eye. To insert a board between two existing boards in another column, drag the board and drop it over the target board at the position where you want it inserted.
-
-## Settings
-
-Access settings via the settings icon in the toolbar. Settings are auto-saved as you adjust them.
-
-**Behavior Settings:**
-- **Open links in new tab**: When enabled, clicking bookmarks opens them in a new browser tab instead of the current tab (default: off).
-- **Show bookmark descriptions**: When enabled, displays saved descriptions below bookmark titles (default: on). Disabled automatically when compact mode is active.
-
-**Appearance Settings:**
-- **Compact mode**: Reduces spacing and card size to show more bookmarks per board. Hides descriptions and shrinks icons and text. Automatically disables "Show bookmark descriptions" (default: off).
-- **Font family**: Switch the UI font across the app from the General settings tab. Available fonts include Plus Jakarta Sans (default), Satoshi, Google Sans, Electrolize, Space Grotesk, Comic Sans, DM Mono, and JetBrains Mono.
-
-**Support:**
-- Help contact form powered by NTFY.sh. Submit your email and message to reach the development team.
-
-## Storage, Import & Export
-
-Persistence is provided by `src/storage/local.ts`. Bookmrk uses the browser extension APIs (when available) and falls back to `localStorage` otherwise.
-
-- Chrome import: When run in an extension context, Bookmrk can import your Chrome bookmarks into an `Imported Bookmarks` board and sets a `chromeBookmarksImported` flag to prevent repeated imports.
-- Export JSON: Exports the application data model as JSON with settings metadata. By design, exported JSON excludes the background image/data to keep exports small and portable. The export includes a `_settingsMetadata` section documenting current settings (behavior and appearance) with human-readable labels and descriptions. You can manually include background data if desired for full fidelity.
-- Import JSON: Restore or migrate data by importing a JSON file generated by Bookmrk (or the compatible data structure). The import flow validates basic fields and merges or replaces data depending on import mode.
-
-### Migration notes
-
-- If you have an older Bookmrk export (or another import source), map the fields to the current `BookmrkData` shape. Pay attention to `chromeBookmarksImported` (boolean) and `background` (object | null).
-
-## Data Model
-
-Core TypeScript types are defined in `src/shared/types.ts`. The important shapes:
-
-- `Bookmark` - { id, url, title, notes?, createdAt }
-- `Board` - { id, name, order, columnIndex?, bookmarks: Bookmark[] }
-- `Page` - { id, name, boards: Board[] }
-- `Settings` - { openLinksInNewTab?: boolean, showBookmarkDescriptions?: boolean, compactMode?: boolean, themeMode?: 'discord' | 'simple' | 'neobrutalist' | 'neumorphism', fontFamily?: 'plus-jakarta-sans' | 'satoshi' | 'google-sans' | 'electrolize' | 'dm-mono' | 'jetbrains-mono' | 'comic-sans' | 'space-grotesk' }
-- `BookmrkData` - { pages: Page[], settings: Settings, meta: { createdAt }, chromeBookmarksImported?: boolean, background?: Background | null }
-
-Background types:
-- { type: 'image', url: 'https://...' }
-- { type: 'image', url: 'data:image/png;base64,...' }
-
-## Theming & Backgrounds
-
-- The app supports light/dark surfaces and respects the user's `prefers-color-scheme` by default. Modal surfaces use `#000000` in dark mode and `#FFFFFF` in light mode to ensure contrast and consistent visuals.
-- Backgrounds applied via the Background modal are persisted in the store and affect the home page only. You can set an external image URL or upload an image (stored as data URL). Uploaded images are stored as data URLs — note that large images can inflate storage. Consider compressing images before upload.
-- Modal backgrounds automatically apply glassmorphism (blur + transparency) when an image background is active, creating a modern frosted-glass appearance. When using system defaults (light/dark mode), modals use solid backgrounds for clarity.
-
-### Themes
-
-Bookmrk provides three built-in visual themes (selectable from the Palette menu in the toolbar or via the Appearance settings):
-
-<div align="center">
-
-<img width="1861" height="1021" alt="Discord Theme" src="https://raw.githubusercontent.com/sarvan-2187/Bookmrk/refs/heads/main/docs/screenshots/discord-theme.png" />
-
-<br/>
-
-**Discord** (default): a dense, compact shell inspired by the Discord UI.
-
-<br/>
-
-<img width="1857" height="1025" alt="Simple Theme" src="https://raw.githubusercontent.com/sarvan-2187/Bookmrk/refs/heads/main/docs/screenshots/simple-theme.png" />
-
-<br/>
-
-**Simple**: a cleaner top-tab layout with reduced chrome and clearer spacing.
-
-<br/>
-
-<img width="1863" height="1025" alt="NeoBrutalist Theme" src="https://raw.githubusercontent.com/sarvan-2187/Bookmrk/refs/heads/main/docs/screenshots/neobrutalist-theme.png" />
-
-<br/>
-
-**NeoBrutalist**: high-contrast white-and-black styling with stronger borders and blocky shadows.
-
-</div>
-
-<br/>
-
-Additionally, a new **Neumorphism** theme is available which uses soft, extruded shadows and subtle inset highlights to create a tactile, 'soft UI' appearance. It emphasizes smooth rounded card surfaces and gentle inner/outer shadows — great for a modern, minimal aesthetic.
-
-Theme list (selectable from the Palette menu or via Appearance settings):
-
-- **Discord** (default): a dense, compact shell inspired by the Discord UI.
-- **Simple**: a cleaner top-tab layout with reduced chrome and clearer spacing.
-- **NeoBrutalist**: high-contrast white-and-black styling with stronger borders and blocky shadows.
-- **Neumorphism**: soft shadows, rounded cards, and inset highlights for a tactile UI.
-
-These theme choices are persisted in the stored settings as `themeMode` with allowed values `discord`, `simple`, `neobrutalist`, or `neumorphism` (see `src/shared/types.ts`).
-
-## Architecture & Code Structure
-
-Top-level structure (important files/directories):
-- `src/App.tsx` — Application root, global modal mounting and theme fallback.
-- `src/store/useStore.ts` — Zustand store: pages, boards, bookmarks, background, settings, modals, and toasts. Provides actions for settings management (updateSettings, openSettingsModal, closeSettingsModal).
-- `src/storage/local.ts` — Persistence adapter (chrome.storage.local when available, otherwise localStorage). Handles export/import operations with settings metadata in exports.
-- `src/shared/types.ts` — Central TypeScript types including Settings and getModalBackgroundStyle utility.
-- `src/components/` — UI components and modal implementations:
-  - `Settings/SettingsModal.tsx` — settings manager with tabs for General (behavior/appearance/font picker), Account, and Support sections. Auto-saves changes with toggle switches.
-  - `Background/BackgroundModal.tsx` — background manager (URL/upload).
-  - `Shared/InputModal.tsx` — reusable input modal.
-  - `Bookmark/QuickSaveModal.tsx` — Quick Save keyboard handler and UX.
-  - `Board/BoardColumn.tsx` — board UI and BoardSettingsModal.
-  - `Page/PageView.tsx` — canvas-style 4-column board lanes, DnD context, and add-board placement.
-- `src/store/` — global state & helpers.
-
-DnD is implemented with `@dnd-kit/core` and `@dnd-kit/sortable`. Portals use `createPortal` from `react-dom` to ensure modals render at the document root and center properly.
-
-## Development Setup
-
-Prerequisites: Node.js 18+ and npm.
-
-1. Install dependencies:
-
-```bash
-npm install
-```
-
-2. Start development server (hot reload):
-
-```bash
-npm run dev
-```
-
-3. Build for production:
-
-```bash
-npm run build
-```
-
-4. Preview production build locally:
-
-```bash
-npm run preview
-```
-
-## Scripts
-
-- `npm run dev` — start Vite dev server
-- `npm run build` — production build (web app / Chromium extension bundle)
-- `npm run build:firefox` — build Firefox extension bundle into `dist/`
-- `npm run build:chromium` — build Chromium extension bundle into `dist/`
-- `npm run release:firefox` — build and zip to `firefox-releases/Bookmrk-vX.Y.Z.zip`
-- `npm run release:chromium` — build and zip to `chromium-releases/Bookmrk-vX.Y.Z.zip`
-- `npm run release:all` — create both release zips
-- `npm run firefox:run` — build for Firefox and launch Firefox with the add-on loaded
-- `npm run firefox:build` — alias for `release:firefox`
-- `npm run preview` — preview production build locally
-
-## Testing, Linting & Formatting
-
-- Add tests and linters as needed — repository currently focuses on core functionality. Consider adding `vitest` for unit tests, `eslint` for linting, and `prettier` for formatting.
-
-## Contribution Guide
-
-We welcome contributions. High-level workflow:
-
-1. Fork the repo and create a topic branch for your change.
-2. Run the app locally and ensure functionality passes.
-3. Open a pull request describing the change, tests, and any migration steps.
-
-## Example Screenshots & Annotated Flows
-
-<div align="center">
-
-<img width="1861" height="1021" alt="Home — 4 column grid" src="https://raw.githubusercontent.com/sarvan-2187/Bookmrk/refs/heads/main/docs/screenshots/home-4-up.png" />
-
-<br/>
-
-Home page showing 4-column grid
-
-<br/>
-
-<img width="1861" height="1021" alt="Quick Save Modal" src="https://raw.githubusercontent.com/sarvan-2187/Bookmrk/refs/heads/main/docs/screenshots/quick-save-modal.png" />
-
-<br/>
-
-Quick Save modal open
-
-<br/>
-
-<img width="1861" height="1021" alt="Board Settings Modal" src="https://raw.githubusercontent.com/sarvan-2187/Bookmrk/refs/heads/main/docs/screenshots/board-settings-modal.png" />
-
-<br/>
-
-Board Settings modal open
-
-<br/>
-
-<img width="1861" height="1021" alt="Background Modal" src="https://raw.githubusercontent.com/sarvan-2187/Bookmrk/refs/heads/main/docs/screenshots/background-modal.png" />
-
-<br/>
-
-Background modal showing URL/upload options
-
-</div>
-
-## Migration Script Example
-
-When the persisted data shape changes between releases, a small migration script can help convert older exports to the current `BookmrkData` shape. Add and run this script locally to transform an exported JSON file.
-
-Example script: `scripts/migrate_v1_to_v2.ts` — usage:
-
-```bash
-# install ts-node if you don't have it
-npm install -D ts-node typescript
-
-# run migration
-npx ts-node scripts/migrate_v1_to_v2.ts old-export.json migrated.json
-```
-
-This example script performs conservative transforms:
-- ensures `chromeBookmarksImported` exists (defaults to `false`)
-- normalizes `background` to explicit `{ type, value } | null`
-- ensures `createdAt` timestamps exist on top-level meta
-
-See `scripts/migrate_v1_to_v2.ts` for the implementation.
-
-## Contributor Checklist & PR Template
-
-I've added a Pull Request template at `.github/PULL_REQUEST_TEMPLATE.md` with a contributor checklist to make reviews faster. The checklist includes items for tests, docs, migrations, and changelog notes.
-
-When opening a PR, please include:
-
-- A summary of the change and its rationale.
-- Before/after screenshots if UI is affected (place under `docs/screenshots/`).
-- Any migration steps or data shape changes and a link to the migration script if applicable.
-- Update to `README.md` or docs when features or developer flows change.
-
-
-## Troubleshooting & FAQ
-
-Q: Quick Save isn't working in my browser.
-<br/>
-A: Ensure the page has focus and the app/extension is active. Browser-level keybindings can conflict; try the toolbar Quick Save button as a fallback. In Firefox, check **about:addons** → Bookmrk → **Manage extension shortcuts** if **Ctrl+Shift+Y** is taken.
-<br/>
-<br/>
-
-Q: How do I install Bookmrk on Firefox?
-<br/>
-A: Build from source with `npm run firefox:run`, or run `npm run release:firefox` and load the add-on from the extracted `firefox-releases/Bookmrk-v1.5.0.zip`. See **Install on Firefox** under Quick Start for full steps.
-<br/>
-<br/>
-
-Q: I imported Chrome bookmarks and the button is disabled.
-<br/>
-A: That's by design, Bookmrk sets `chromeBookmarksImported` to avoid duplicate imports. If you need to re-import, you have two safe options:
-
-- Delete the `Imported Bookmarks` board from the UI; Bookmrk will automatically clear the import lock and re-enable the `Import Chrome` button.
-- Or (advanced) clear the `chromeBookmarksImported` flag manually in storage (not recommended unless you know what you're doing).
-<br/>
-<br/>
-
-Q: My exported JSON is missing my background image.
-<br/>
-A: Bookmrk intentionally omits background data from exported JSON to keep exports small. If you need the background included, open the storage code in `src/storage/local.ts` and adjust the export function.
-<br/>
-<br/>
-Q: Summon opened too many tabs.
-<br/>
-A: Summon opens all bookmarks in a board. Use with caution with large boards.
-<br/>
-<br/>
-Q: Where did the open-link icon go on bookmark cards?
-<br/>
-A: The bookmark card itself now opens the URL when clicked, so the separate open-link button was removed.
-<br/>
-<br/>
-
-## Privacy & Data Considerations
-
-- Bookmrk stores data locally (browser storage or extension storage). Uploaded images are persisted as data URLs and may contain sensitive metadata. Avoid uploading very large images.
-- Chrome bookmark import reads local browser bookmarks when the extension has permission — the import is performed locally and not transmitted off-device by default.
-
-## License & Contact
-
-This project is open source under MIT License.
-
-For questions, issues, or contributions, open an issue or pull request in the repository.
-
-The Domain `https://bookmrk.dpdns.org` has been powered by DigitalPlat Domains.
+MIT.

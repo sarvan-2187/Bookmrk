@@ -1,0 +1,226 @@
+/*
+ * Styles for the shared UI primitives in components/Shared/ui/.
+ *
+ * These live in CSS rather than inline style objects because :hover,
+ * :disabled and [aria-pressed] states can't be expressed inline — and an
+ * inline `style` would beat a Tailwind `hover:` class anyway, which is how
+ * hover states silently stopped working in the first place. Everything here
+ * is token-driven, so a theme restyles all of it for free.
+ */
+
+/* ------------------------------- Button -------------------------------- */
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: var(--border-width) solid transparent;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease, opacity 150ms ease;
+}
+
+.ui-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ui-btn-sm { padding: 0.5rem 0.75rem; }
+.ui-btn-md { padding: 0.5rem 1rem; }
+
+.ui-btn-primary {
+  background-color: var(--accent);
+  color: var(--accent-text);
+}
+.ui-btn-primary:hover:not(:disabled) { background-color: var(--accent-hover); }
+
+.ui-btn-ghost {
+  background-color: transparent;
+  color: var(--text-muted);
+}
+.ui-btn-ghost:hover:not(:disabled) {
+  background-color: var(--surface-hover);
+  color: var(--text);
+}
+
+.ui-btn-danger {
+  background-color: var(--danger);
+  color: var(--danger-text);
+  border-color: var(--danger-border);
+}
+.ui-btn-danger:hover:not(:disabled) { opacity: 0.9; }
+
+/* ----------------------------- Icon button ----------------------------- */
+.ui-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.375rem;
+  border: 0;
+  border-radius: 0.375rem;
+  background-color: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.ui-icon-btn:hover:not(:disabled) {
+  background-color: var(--surface-hover);
+  color: var(--text);
+}
+.ui-icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+/* Toggle buttons (drag mode, etc.) read as "on" without extra wiring. */
+.ui-icon-btn[aria-pressed='true'],
+.ui-icon-btn[aria-expanded='true'] {
+  background-color: var(--accent);
+  color: var(--accent-text);
+}
+
+/* -------------------------------- Panel -------------------------------- */
+.ui-panel {
+  background-color: var(--surface-raised);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-raised);
+}
+
+.ui-panel-muted {
+  background-color: var(--surface-muted);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius);
+}
+
+.ui-panel-danger {
+  background-color: var(--danger-surface);
+  border: var(--border-width) solid var(--danger-border);
+  border-radius: var(--radius);
+}
+
+/* ---------------------------- Floating surface -------------------------- */
+/* Modals, menus and popovers sit above content (often over a background photo),
+ * where --border alone vanishes. --border-strong plus a hairline inset
+ * highlight gives them a defined translucent edge in every theme. */
+.ui-surface {
+  border: var(--border-width) solid var(--border-strong);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text) 8%, transparent), 0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+/* -------------------------------- Menu --------------------------------- */
+.ui-menu {
+  background-color: var(--surface);
+  backdrop-filter: var(--surface-blur);
+  border: var(--border-width) solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text) 8%, transparent), 0 10px 30px rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+}
+
+.ui-menu-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 1rem;
+  border: 0;
+  background-color: transparent;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.ui-menu-item:hover:not(:disabled) {
+  background-color: var(--surface-hover);
+  color: var(--text);
+}
+.ui-menu-item:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.ui-menu-item[aria-checked='true'] {
+  background-color: var(--surface-muted);
+  color: var(--text);
+}
+
+/* Trailing action inside a menu row (e.g. per-page settings) — sits next to a
+ * full-width item rather than filling the row itself. */
+.ui-menu-item-compact {
+  width: auto;
+  flex: none;
+  padding-inline: 0.75rem;
+}
+
+.ui-menu-separator {
+  height: var(--border-width);
+  background-color: var(--border);
+  margin-block: 0.25rem;
+}
+
+/* ------------------------------ Dividers -------------------------------- */
+/* Single-edge hairlines. These exist because `border-b [border-width:…]` does
+ * NOT give you a bottom border: `border-width` is the all-sides shorthand and
+ * preflight sets `border-style: solid`, so every such element was drawing a
+ * full box. Always use these for a divider. */
+.ui-divider-t { border-top: var(--border-width) solid var(--border); }
+.ui-divider-b { border-bottom: var(--border-width) solid var(--border); }
+.ui-divider-r { border-right: var(--border-width) solid var(--border); }
+
+/* ------------------------------- Fields -------------------------------- */
+.ui-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.ui-input,
+.ui-textarea,
+.ui-select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: var(--border-width) solid var(--border);
+  border-radius: 0.375rem;
+  background-color: var(--surface);
+  color: var(--text);
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+/* Fields get their focus state on the field itself — a soft ring tinted from
+ * --focus — instead of the global hard 2px outline, which read as a harsh
+ * rectangle slapped over the control. */
+.ui-input:focus-visible,
+.ui-textarea:focus-visible,
+.ui-select:focus-visible {
+  outline: none;
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 22%, transparent);
+}
+
+.ui-input::placeholder,
+.ui-textarea::placeholder { color: var(--text-muted); }
+
+.ui-textarea { resize: none; }
+
+/* Borderless field (the search / command input). The row it sits in carries
+ * the focus affordance, so a field that's autofocused the moment the modal
+ * opens doesn't stamp a hard box across the whole header. */
+.ui-input-bare {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  outline: none;
+}
+.ui-input-bare::placeholder { color: var(--text-muted); }
+.ui-input-bare:focus-visible { outline: none; }
+
+.ui-field-row { transition: box-shadow 150ms ease; }
+.ui-field-row:focus-within {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--focus) 32%, transparent);
+}

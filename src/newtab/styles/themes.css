@@ -1,0 +1,234 @@
+/*
+ * Theme tokens for Bookmrk.
+ *
+ * Each theme is one variable set selected by `[data-theme]` on <html>, with a
+ * `[data-color-mode="dark"]` override. App.tsx resolves the user's
+ * Settings.colorMode ('system' | 'light' | 'dark') against matchMedia and
+ * always writes an explicit "light" or "dark" here — so there are deliberately
+ * no `prefers-color-scheme` media queries in this file; that resolution
+ * happens once, in one place.
+ *
+ * A theme may only change how the app LOOKS. It must never decide which
+ * controls exist or where they live — that is Settings.navStyle's job.
+ * Components read var(--token); they never re-derive colors from
+ * isDark/isNeoBrutalist booleans.
+ */
+
+:root {
+  --surface-blur: none;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --border-width: 1px;
+}
+
+/* ============================ Discord (default) ============================ */
+:root,
+[data-theme='discord'] {
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-muted: rgba(255, 255, 255, 0.7);
+  --surface-hover: #f4f4f5;
+  --border: #e4e4e7;
+  --border-strong: rgba(0, 0, 0, 0.14);
+  --text: #18181b;
+  --text-muted: #71717a;
+
+  --accent: #2563eb;
+  --accent-text: #ffffff;
+  --accent-hover: #1d4ed8;
+
+  --danger: #e11d48;
+  --danger-text: #ffffff;
+  --danger-surface: rgba(225, 29, 72, 0.08);
+  --danger-border: #fca5a5;
+
+  --warning: #b45309;
+  --success: #047857;
+  --focus: #2563eb;
+  --overlay: rgba(0, 0, 0, 0.6);
+
+  --shadow-raised: 0 8px 24px rgba(0, 0, 0, 0.04);
+  --shadow-inset: none;
+  --radius: var(--radius-md);
+}
+
+[data-theme='discord'][data-color-mode='dark'] {
+  /* True-black AMOLED: the page is #000 and cards sit barely above it, held
+   * apart by a hairline rather than by a lighter grey fill. The slight
+   * translucency + blur lets a wallpaper read through without washing out. */
+  --surface: #000000;
+  --surface-raised: rgba(10, 10, 12, 0.78);
+  --surface-muted: rgba(255, 255, 255, 0.045);
+  --surface-hover: rgba(255, 255, 255, 0.07);
+  --surface-blur: saturate(140%) blur(14px);
+  --border: rgba(255, 255, 255, 0.07);
+  --border-strong: rgba(255, 255, 255, 0.13);
+  --text: #f5f5f7;
+  --text-muted: #8e8e95;
+
+  --accent: #2563eb;
+  --accent-text: #ffffff;
+  --accent-hover: #1d4ed8;
+
+  --danger: #f43f5e;
+  --danger-text: #09090b;
+  --danger-surface: rgba(244, 63, 94, 0.12);
+  --danger-border: rgba(244, 63, 94, 0.35);
+
+  --warning: #fbbf24;
+  --success: #34d399;
+  --focus: #60a5fa;
+  --overlay: rgba(0, 0, 0, 0.6);
+
+  --shadow-raised: none;
+}
+
+/* ================================= Simple ================================= */
+[data-theme='simple'] {
+  --surface: #ffffff;
+  --surface-raised: rgba(255, 255, 255, 0.35);
+  --surface-muted: rgba(255, 255, 255, 0.6);
+  --surface-hover: rgba(0, 0, 0, 0.05);
+  --border: #e4e4e7;
+  --border-strong: rgba(0, 0, 0, 0.14);
+  --text: #18181b;
+  --text-muted: #71717a;
+
+  --accent: #2563eb;
+  --accent-text: #ffffff;
+  --accent-hover: #1d4ed8;
+
+  --danger: #e11d48;
+  --danger-text: #ffffff;
+  --danger-surface: rgba(225, 29, 72, 0.08);
+  --danger-border: #fca5a5;
+
+  --warning: #b45309;
+  --success: #047857;
+  --focus: #2563eb;
+  --overlay: rgba(0, 0, 0, 0.6);
+
+  --shadow-raised: inset 0 0 0 1px rgba(255, 255, 255, 0.18), 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-inset: none;
+  --radius: var(--radius-lg);
+}
+
+[data-theme='simple'][data-color-mode='dark'] {
+  --surface: #000000;
+  --surface-raised: rgba(255, 255, 255, 0.05);
+  --surface-muted: rgba(255, 255, 255, 0.045);
+  --surface-hover: rgba(255, 255, 255, 0.09);
+  --surface-blur: saturate(140%) blur(16px);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --text: #f5f5f7;
+  --text-muted: #8e8e95;
+
+  --accent: #2563eb;
+  --accent-text: #ffffff;
+  --accent-hover: #1d4ed8;
+
+  --danger: #f43f5e;
+  --danger-text: #09090b;
+  --danger-surface: rgba(244, 63, 94, 0.12);
+  --danger-border: rgba(244, 63, 94, 0.35);
+
+  --warning: #fbbf24;
+  --success: #34d399;
+  --focus: #60a5fa;
+  --overlay: rgba(0, 0, 0, 0.6);
+}
+
+/* ============================== NeoBrutalist ============================== */
+/* Deliberately light-only: the whole point is flat white + hard black edges.
+ * Semantic colors stay bold and flat rather than soft, and keep black borders. */
+[data-theme='neobrutalist'] {
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-muted: #f4f4f5;
+  --surface-hover: #e4e4e7;
+  --border: #000000;
+  --border-strong: #000000;
+  --border-width: 2px;
+  --text: #000000;
+  --text-muted: #3f3f46;
+
+  --accent: #000000;
+  --accent-text: #ffffff;
+  --accent-hover: #27272a;
+
+  /* #cc2229 rather than a brighter flat red: white-on-red needs 4.5:1 (this is 5.49). */
+  --danger: #cc2229;
+  --danger-text: #ffffff;
+  --danger-surface: #ffe5e5;
+  --danger-border: #000000;
+
+  --warning: #b45309;
+  --success: #0b7a63;
+  --focus: #0057ff;
+  --overlay: rgba(255, 255, 255, 0.88);
+
+  --shadow-raised: 4px 4px 0 #000;
+  --shadow-inset: none;
+  --radius: 0.5rem;
+}
+
+/* ============================== Neumorphism ============================== */
+[data-theme='neumorphism'] {
+  --surface: #e8ecf3;
+  --surface-raised: #e8ecf3;
+  --surface-muted: #e8ecf3;
+  --surface-hover: #dde3ec;
+  /* Soft but present: fully transparent borders left inputs with no edge at all. */
+  --border: rgba(163, 177, 198, 0.45);
+  --border-strong: rgba(148, 163, 190, 0.7);
+  --text: #1e293b;
+  --text-muted: #475569;
+
+  --accent: #2563eb;
+  --accent-text: #ffffff;
+  --accent-hover: #1d4ed8;
+
+  --danger: #c0392f;
+  --danger-text: #ffffff;
+  --danger-surface: #f5e2e0;
+  --danger-border: rgba(192, 57, 47, 0.35);
+
+  --warning: #9a6314;
+  --success: #2f7a5f;
+  --focus: #2563eb;
+  --overlay: rgba(0, 0, 0, 0.45);
+
+  --shadow-raised: 8px 8px 18px rgba(163, 177, 198, 0.35), -8px -8px 18px rgba(255, 255, 255, 0.9);
+  --shadow-inset: inset 5px 5px 10px rgba(163, 177, 198, 0.55), inset -5px -5px 10px rgba(255, 255, 255, 0.95);
+  --radius: var(--radius-lg);
+}
+
+[data-theme='neumorphism'][data-color-mode='dark'] {
+  --surface: #1b1f27;
+  --surface-raised: #1b1f27;
+  --surface-muted: #1b1f27;
+  --surface-hover: #232833;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --text: #f4f4f5;
+  --text-muted: #d4d4d8;
+
+  --accent: #2563eb;
+  --accent-text: #ffffff;
+  --accent-hover: #1d4ed8;
+
+  --danger: #f1767f;
+  --danger-text: #1b1f27;
+  --danger-surface: rgba(241, 118, 127, 0.12);
+  --danger-border: rgba(241, 118, 127, 0.3);
+
+  --warning: #f0b03e;
+  --success: #5cc9a0;
+  --focus: #60a5fa;
+  --overlay: rgba(0, 0, 0, 0.6);
+
+  --shadow-raised: 8px 8px 18px rgba(0, 0, 0, 0.55), -8px -8px 18px rgba(255, 255, 255, 0.03);
+  --shadow-inset: inset 5px 5px 10px rgba(0, 0, 0, 0.75), inset -5px -5px 10px rgba(0, 0, 0, 0.35);
+}
