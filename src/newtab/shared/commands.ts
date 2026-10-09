@@ -148,6 +148,13 @@ export function buildCommands(ui: {
     },
 
     // ---- View ----
+    {
+      id: 'zen',
+      group: 'View',
+      label: settings?.zenMode ? 'Exit Zen mode' : 'Enter Zen mode',
+      keywords: 'focus minimal pins pinned',
+      run: () => updateSettings({ zenMode: !settings?.zenMode }),
+    },
     { id: 'blur', group: 'View', label: 'Toggle privacy blur', keywords: 'hide censor private', run: toggleBlurMode },
     ...(resolveNavStyle(settings) === 'sidebar'
       ? [{ id: 'sidebar', group: 'View', label: 'Toggle sidebar', run: toggleSidebar }]

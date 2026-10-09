@@ -13,6 +13,7 @@ const SHORTCUTS: Array<{ keys: string; description: string }> = [
   { keys: 'i', description: 'Open settings' },
   { keys: 's', description: 'Toggle sidebar (Sidebar layout)' },
   { keys: 'x', description: 'Toggle privacy blur' },
+  { keys: 'z', description: 'Toggle Zen mode' },
   { keys: '?', description: 'Show this shortcuts list' },
   { keys: 'Ctrl/Cmd + Shift + Y', description: 'Quick Save the current tab' },
   { keys: 'Esc', description: 'Close the open modal or menu' },

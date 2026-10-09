@@ -159,7 +159,10 @@ export class StorageAdapter {
             pages: candidate.pages as BookmrkData['pages'],
             chromeBookmarksImported: candidate.chromeBookmarksImported,
             background: candidate.background ?? null,
-            settings: candidate.settings
+            settings: candidate.settings,
+            pinnedBookmarkIds: Array.isArray(candidate.pinnedBookmarkIds)
+              ? candidate.pinnedBookmarkIds.filter((id): id is string => typeof id === 'string')
+              : undefined,
           });
         } catch (err) {
           reject(err instanceof Error ? err : new Error('Failed to read import file'));

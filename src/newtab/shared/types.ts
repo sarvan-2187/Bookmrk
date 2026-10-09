@@ -48,7 +48,11 @@ export type Settings = {
   // Unset => derived from themeMode for backward compatibility (see
   // resolveNavStyle). Once the user picks one it sticks across theme changes.
   navStyle?: NavStyle;
+  // Hides boards/sidebar/toolbar and shows only pinned bookmarks.
+  zenMode?: boolean;
 };
+
+export const MAX_PINS = 20;
 
 // A single text prompt, rendered once by App via InputModal. Anything that
 // needs a name from the user (new page, new board, rename) raises one of these
@@ -81,4 +85,7 @@ export type BookmrkData = {
     value: string;
   } | null;
   settings?: Settings;
+  // Bookmark ids shown in Zen mode, in pin order (max MAX_PINS). Ids whose
+  // bookmark no longer exists are skipped at render time.
+  pinnedBookmarkIds?: string[];
 };

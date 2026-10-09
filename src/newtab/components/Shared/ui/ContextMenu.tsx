@@ -101,6 +101,12 @@ export function ContextMenu({ position, onClose, label, children }: ContextMenuP
       aria-label={label}
       className="ui-menu fixed z-70 w-56"
       style={{ left: position.x, top: position.y }}
+      // React bubbles portal events through the component tree, so without
+      // this a menu click (or Enter on an item) also hits the card's own
+      // open handler. Only Enter/Space are stopped: the window listener above
+      // still needs Escape and the arrow keys.
+      onClick={(event) => event.stopPropagation()}
+      onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') event.stopPropagation(); }}
     >
       {children(onClose)}
     </div>,

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Board, Bookmark, BookmrkData, Page, PendingDelete, PromptConfig, Settings } from '../shared/types';
+import { Board, Bookmark, BookmrkData, MAX_PINS, Page, PendingDelete, PromptConfig, Settings } from '../shared/types';
 import { StorageAdapter } from '../storage/local';
 import { generateId } from '../shared/utils';
 import { toast } from 'sonner';
@@ -38,6 +38,7 @@ interface AppState {
   setBackgroundModalOpen: (open: boolean) => void;
   // Settings management
   updateSettings: (settings: Partial<Settings>) => void;
+  togglePin: (bookmarkId: string) => void;
   // Toasts
   addToast: (message: string, type?: 'info' | 'success' | 'error') => void;
 
@@ -121,6 +122,7 @@ function cloneData(source: BookmrkData): BookmrkData {
     chromeBookmarksImported: source.chromeBookmarksImported ?? false,
     background: source.background ?? null,
     settings: source.settings ? { ...source.settings } : undefined,
+    pinnedBookmarkIds: source.pinnedBookmarkIds ? [...source.pinnedBookmarkIds] : undefined,
     pages: source.pages.map((page) => ({
       ...page,
       boards: page.boards.map((board) => ({
@@ -389,6 +391,21 @@ export const useStore = create<AppState>((set, get) => {
         ...data.settings,
         ...settings
       }
+    };
+    set({ data: newData });
+    StorageAdapter.save(newData);
+  },
+  togglePin: (bookmarkId) => {
+    const { data } = get();
+    if (!data) return;
+    const pins = data.pinnedBookmarkIds ?? [];
+    if (!pins.includes(bookmarkId) && pins.length >= MAX_PINS) {
+      toast.info(`Zen holds up to ${MAX_PINS} pins — unpin one first`);
+      return;
+    }
+    const newData = {
+      ...data,
+      pinnedBookmarkIds: pins.includes(bookmarkId) ? pins.filter((id) => id !== bookmarkId) : [...pins, bookmarkId],
     };
     set({ data: newData });
     StorageAdapter.save(newData);

@@ -12,6 +12,7 @@ import { InputModal } from './components/Shared/InputModal';
 import { OnboardingModal } from './components/Shared/OnboardingModal';
 import { ShortcutsHelpModal } from './components/Shared/ShortcutsHelpModal';
 import { Toaster } from './components/Sonner';
+import { ZenView } from './components/Zen/ZenView';
 import { resolveIsDark, resolveNavStyle } from './shared/utils';
 import { promptNewPage } from './shared/actions';
 import {
@@ -25,7 +26,7 @@ import {
 const ONBOARDING_STORAGE_KEY = 'bookmrk_onboarding_seen_v1';
 
 export default function App() {
-  const { initialize, isLoading, activeSidebar, blurMode, data, backgroundModalOpen, setBackgroundModalOpen, settingsModalOpen, closeSettingsModal, addToast, toggleSidebar, openSettingsModal, toggleBlurMode, prompt, closePrompt, importData } = useStore();
+  const { initialize, isLoading, activeSidebar, blurMode, data, backgroundModalOpen, setBackgroundModalOpen, settingsModalOpen, closeSettingsModal, addToast, toggleSidebar, openSettingsModal, toggleBlurMode, prompt, closePrompt, importData, updateSettings } = useStore();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   // '>' opens the palette straight into command mode (Ctrl+K); '' is plain search ('/').
   const [searchInitialQuery, setSearchInitialQuery] = useState('');
@@ -53,6 +54,7 @@ export default function App() {
   const isNeoBrutalistMode = layoutMode === 'neobrutalist';
   // Layout is the user's own setting, independent of which theme is active.
   const navStyle = resolveNavStyle(data?.settings);
+  const zenMode = data?.settings?.zenMode ?? false;
 
   // Everything downstream reads these from CSS (see styles/themes.css) instead
   // of re-deriving isDark/isNeoBrutalist/... booleans per component.
@@ -83,8 +85,8 @@ export default function App() {
       }
 
       if (isTypingTarget) return;
-      if (!['/', 's', 'p', 'i', 'x', '?'].includes(key)) return;
-      if (['s', 'p', 'i', 'x'].includes(key) && isMod) return;
+      if (!['/', 's', 'p', 'i', 'x', 'z', '?'].includes(key)) return;
+      if (['s', 'p', 'i', 'x', 'z'].includes(key) && isMod) return;
 
       if (key === 's') {
         event.preventDefault();
@@ -122,6 +124,12 @@ export default function App() {
         return;
       }
 
+      if (key === 'z') {
+        event.preventDefault();
+        updateSettings({ zenMode: !useStore.getState().data?.settings?.zenMode });
+        return;
+      }
+
       if (key === '?') {
         event.preventDefault();
         setIsShortcutsHelpOpen(true);
@@ -130,7 +138,7 @@ export default function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [addToast, toggleSidebar, openSettingsModal, toggleBlurMode]);
+  }, [addToast, toggleSidebar, openSettingsModal, toggleBlurMode, updateSettings]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -170,6 +178,11 @@ export default function App() {
       {/* Sidebar — shown by layout choice, not by theme. Backgrounds and the
           other data actions live in the toolbar's overflow menu in both
           layouts, so no theme can leave a feature unreachable. */}
+      {zenMode ? (
+        <div className="relative z-10 flex-1 min-w-0">
+          <ZenView isDark={isDark} onOpenSearch={() => { setSearchInitialQuery(''); setIsSearchOpen(true); }} />
+        </div>
+      ) : (<>
       {navStyle === 'sidebar' && activeSidebar && (
         <div className="z-10 ui-divider-r" style={{ backgroundColor: 'var(--surface-raised)', backdropFilter: 'var(--surface-blur)' }}>
           <Sidebar />
@@ -187,6 +200,7 @@ export default function App() {
           <PageView />
         </main>
       </div>
+      </>)}
 
       <Toaster
         theme="system"

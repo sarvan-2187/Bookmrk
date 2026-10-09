@@ -2,7 +2,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Bookmark } from '../../shared/types';
 import { cn } from '../../shared/utils';
-import { GripVertical, Pencil, Trash2, ExternalLink, Copy } from 'lucide-react';
+import { GripVertical, Pencil, Trash2, ExternalLink, Copy, Pin, PinOff } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { useStore } from '../../store/useStore';
 import { BookmarkSettingsModal } from './BookmarkSettingsModal';
@@ -17,7 +17,8 @@ interface BookmarkTileProps {
 }
 
 export function BookmarkTile({ bookmark, boardId, pageId, isOverlay }: BookmarkTileProps) {
-  const { deleteBookmark, addToast, data, blurMode } = useStore();
+  const { deleteBookmark, addToast, data, blurMode, togglePin } = useStore();
+  const isPinned = data?.pinnedBookmarkIds?.includes(bookmark.id) ?? false;
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isRevealed, setIsRevealed] = useState(false);
   const contextMenu = useContextMenu();
@@ -164,6 +165,12 @@ export function BookmarkTile({ bookmark, boardId, pageId, isOverlay }: BookmarkT
               }}
             >
               Copy link
+            </MenuItem>
+            <MenuItem
+              icon={isPinned ? <PinOff className="h-4 w-4 shrink-0" /> : <Pin className="h-4 w-4 shrink-0" />}
+              onClick={() => { togglePin(bookmark.id); close(); }}
+            >
+              {isPinned ? 'Unpin from Zen' : 'Pin to Zen'}
             </MenuItem>
             <MenuItem icon={<Pencil className="h-4 w-4 shrink-0" />} onClick={() => { setIsSettingsOpen(true); close(); }}>
               Edit bookmark

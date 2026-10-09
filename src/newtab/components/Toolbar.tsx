@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { EyeOff, PanelLeft, Plus, Search, Settings, Check, BookmarkPlus, HelpCircle, MoreHorizontal, Download, Upload, Image as ImageIcon, Files } from 'lucide-react';
+import { EyeOff, PanelLeft, Plus, Search, Settings, Check, BookmarkPlus, HelpCircle, MoreHorizontal, Download, Upload, Image as ImageIcon, Files, Flower2 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { PageSettingsModal } from './Page/PageSettingsModal';
 import { resolveNavStyle } from '../shared/utils';
@@ -24,7 +24,7 @@ export function Toolbar({ onOpenSearch, onOpenShortcutsHelp, onOpenImportFilePic
   const {
     toggleSidebar, toggleBlurMode, data, activePageId, setActivePage,
     openQuickSave, openSettingsModal, addToast, importChromeBookmarks,
-    exportData, setBackgroundModalOpen,
+    exportData, setBackgroundModalOpen, updateSettings,
   } = useStore();
 
   // Layout comes from the user's own setting, never from the theme.
@@ -181,6 +181,9 @@ export function Toolbar({ onOpenSearch, onOpenShortcutsHelp, onOpenImportFilePic
 
               <div className="ui-menu-separator" role="separator" />
 
+              <MenuItem icon={<Flower2 className="h-4 w-4 shrink-0" />} onClick={() => { updateSettings({ zenMode: true }); close(); }}>
+                Enter Zen mode
+              </MenuItem>
               <MenuItem icon={<EyeOff className="h-4 w-4 shrink-0" />} onClick={() => { toggleBlurMode(); close(); }}>
                 Toggle privacy blur
               </MenuItem>
