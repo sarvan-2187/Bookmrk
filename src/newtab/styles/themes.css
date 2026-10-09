@@ -55,13 +55,14 @@
 
 [data-theme='discord'][data-color-mode='dark'] {
   /* True-black AMOLED: the page is #000 and cards sit barely above it, held
-   * apart by a hairline rather than by a lighter grey fill. The slight
-   * translucency + blur lets a wallpaper read through without washing out. */
+   * apart by a hairline rather than by a lighter grey fill. Translucency + a
+   * light blur lets a wallpaper actually show through cards; heavier values
+   * smeared it into an unrecognisable wash. */
   --surface: #000000;
-  --surface-raised: rgba(10, 10, 12, 0.78);
+  --surface-raised: rgba(10, 10, 12, 0.7);
   --surface-muted: rgba(255, 255, 255, 0.045);
   --surface-hover: rgba(255, 255, 255, 0.07);
-  --surface-blur: saturate(140%) blur(14px);
+  --surface-blur: saturate(140%) blur(6px);
   --border: rgba(255, 255, 255, 0.07);
   --border-strong: rgba(255, 255, 255, 0.13);
   --text: #f5f5f7;
@@ -119,7 +120,7 @@
   --surface-raised: rgba(255, 255, 255, 0.05);
   --surface-muted: rgba(255, 255, 255, 0.045);
   --surface-hover: rgba(255, 255, 255, 0.09);
-  --surface-blur: saturate(140%) blur(16px);
+  --surface-blur: saturate(140%) blur(6px);
   --border: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.14);
   --text: #f5f5f7;

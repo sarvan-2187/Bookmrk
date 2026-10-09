@@ -28,7 +28,7 @@ type SearchModalProps = {
   onOpenImportFilePicker: () => void;
 };
 
-function buildResults(data: BookmrkData | null, query: string): SearchResult[] {
+export function buildResults(data: BookmrkData | null, query: string): SearchResult[] {
   if (!data || !query.trim()) return [];
 
   const normalizedQuery = query.trim().toLowerCase();

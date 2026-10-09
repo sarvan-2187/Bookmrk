@@ -22,7 +22,7 @@
 
 ## Install
 
-Grab the ZIP for your browser from the [**Releases**](../../releases/latest) page — `Bookmrk-v1.6.0-chromium.zip`, `Bookmrk-v1.6.0-firefox.zip` or `Bookmrk-v1.6.0-edge.zip` — and extract it somewhere you'll keep (the browser loads it from that folder, so deleting it uninstalls the extension).
+Grab the ZIP for your browser from the [**Releases**](../../releases/latest) page — `Bookmrk-v1.7.0-chromium.zip`, `Bookmrk-v1.7.0-firefox.zip` or `Bookmrk-v1.7.0-edge.zip` — and extract it somewhere you'll keep (the browser loads it from that folder, so deleting it uninstalls the extension).
 
 ### Chrome / Edge
 
@@ -61,7 +61,8 @@ If you're changing the code, `npm run dev -- --browser=chrome` launches a browse
 - **Pages → Boards → Bookmarks.** Multiple pages, each a four-column canvas of boards.
 - **Drag to rearrange.** Boards move between columns (empty columns are valid drop targets); bookmarks move within and across boards. Boards drag from their header; bookmarks drag from their favicon, which turns into a grip on hover.
 - **Per-board bookmark limit.** Each page sets how many bookmarks show per board before a "Show more" fold.
-- **Right-click anything.** Board → add bookmark, rename, open all, delete. Bookmark → open in new tab, copy link, edit, delete. `Shift+F10` does the same from the keyboard.
+- **Right-click anything.** Board → add bookmark, rename, open all, delete. Bookmark → open in new tab, copy link, pin to Zen, edit, delete. `Shift+F10` does the same from the keyboard.
+- **Zen mode** (`z`). Pin up to 20 bookmarks from any page, then hide the sidebar, toolbar and boards and show just those pins as a centered icon grid. Stays on across new tabs until you exit.
 
 ### Capture
 
@@ -72,7 +73,7 @@ If you're changing the code, `npm run dev -- --browser=chrome` launches a browse
 ### Finding
 
 - **Search** (`/`) across titles, URLs, notes, tags, board and page names.
-- **Command palette** (`Ctrl/Cmd+K`) covering **every** action in the app: page switch/create/rename/delete, new board, export/import, all four themes, colour modes, layouts, background, compact mode, blur, settings, help.
+- **Command palette** (`Ctrl/Cmd+K`) covering **every** action in the app: page switch/create/rename/delete, new board, export/import, all four themes, colour modes, layouts, background, compact mode, Zen mode, blur, settings, help.
 - **Tags** — tag any bookmark, then filter by tag chips in search.
 
 ### Appearance
@@ -116,6 +117,7 @@ Focus is trapped in modals and restored on close; every icon-only control has an
 | `i` | Open settings |
 | `s` | Toggle sidebar (Sidebar layout only) |
 | `x` | Toggle privacy blur |
+| `z` | Toggle Zen mode |
 | `?` | Show shortcuts |
 | `Right-click` / `Shift + F10` | Board or bookmark actions |
 | `Esc` | Close the open modal or menu |

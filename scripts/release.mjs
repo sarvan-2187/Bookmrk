@@ -51,9 +51,18 @@ for (const {browser, label} of targets) {
 
   // Stage a copy at the repo root so the archives are easy to attach to a
   // release without digging through dist/. Root *.zip is gitignored.
-  const built = join('dist', browser, `${name}.zip`)
-  if (!existsSync(built)) {
-    console.error(`Expected ${built} to exist after the build.`)
+  // Older Extension.js wrote dist/<browser>/<name>.zip; newer releases write
+  // dist/<name>-<browser>.zip, skipping the suffix when the name already ends
+  // in it (so firefox lands at dist/<name>.zip). No lockfile is committed, so
+  // accept any of them.
+  const candidates = [
+    join('dist', browser, `${name}.zip`),
+    join('dist', `${name}-${browser}.zip`),
+    join('dist', `${name}.zip`)
+  ]
+  const built = candidates.find((path) => existsSync(path))
+  if (!built) {
+    console.error(`Expected one of ${candidates.join(', ')} to exist after the build.`)
     process.exit(1)
   }
   copyFileSync(built, `${name}.zip`)

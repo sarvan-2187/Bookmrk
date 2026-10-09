@@ -101,6 +101,12 @@ export default function App() {
 
       if (key === '/') {
         event.preventDefault();
+        // Zen has its own inline search bar; '/' focuses it instead of the modal.
+        const zenSearch = document.getElementById('zen-search');
+        if (zenSearch) {
+          zenSearch.focus();
+          return;
+        }
         setSearchInitialQuery('');
         setIsSearchOpen(true);
         return;
@@ -163,7 +169,7 @@ export default function App() {
   const bg = data?.background || null;
   const bgStyle = bg
     ? bg.type === 'image'
-      ? { backgroundImage: `url("${bg.value}")`, filter: 'blur(18px) scale(1.06)' }
+      ? { backgroundImage: `url("${bg.value}")` }
       : { backgroundColor: bg.value }
     : { backgroundColor: 'var(--surface)' };
 
@@ -171,7 +177,9 @@ export default function App() {
     <div className="flex h-screen w-screen overflow-hidden relative" style={{ backgroundColor: 'var(--surface)', color: 'var(--text)' }}>
       {/* Background Layer (image or color) */}
       <div
-        className={`absolute inset-0 z-0 ${bg && bg.type === 'color' ? '' : isDark ? 'opacity-40' : 'opacity-15'} bg-cover bg-center bg-no-repeat`}
+        // Dimmed just enough to keep text on the translucent cards readable;
+        // the image itself should still be clearly visible.
+        className={`absolute inset-0 z-0 ${bg && bg.type === 'color' ? '' : isDark ? 'opacity-70' : 'opacity-40'} bg-cover bg-center bg-no-repeat`}
         style={bgStyle}
       />
 
@@ -180,7 +188,7 @@ export default function App() {
           layouts, so no theme can leave a feature unreachable. */}
       {zenMode ? (
         <div className="relative z-10 flex-1 min-w-0">
-          <ZenView isDark={isDark} onOpenSearch={() => { setSearchInitialQuery(''); setIsSearchOpen(true); }} />
+          <ZenView isDark={isDark} />
         </div>
       ) : (<>
       {navStyle === 'sidebar' && activeSidebar && (

@@ -50,6 +50,8 @@ export type Settings = {
   navStyle?: NavStyle;
   // Hides boards/sidebar/toolbar and shows only pinned bookmarks.
   zenMode?: boolean;
+  // Which engine Zen's search bar uses; remembered across tabs.
+  zenSearchMode?: 'web' | 'bookmarks';
 };
 
 export const MAX_PINS = 20;
